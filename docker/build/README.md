@@ -1,0 +1,1 @@
+This container will build the server binaries used for the WoW 1.12.1 client and can be adjusted according to the vmangos/core github for other content patches. Adjust for other settings accordingly, including the use of newer ACE or TBB libraries or compiles. 

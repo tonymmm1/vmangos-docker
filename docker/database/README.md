@@ -1,0 +1,1 @@
+This contains the database container for the project and will store a persistent volume as stated in the docker volume. Settings in the Dockerfile and or in the script files can be changed for more advanced realm options and or security. 

@@ -1,0 +1,42 @@
+version: "3.2"
+services:
+  vmangos_database:
+    build:
+      context: .
+      dockerfile: docker/database/Dockerfile
+    ports: 
+      - 3306:3306
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ./docker/database/mysql
+        target: /var/lib/mysql
+    env_file:
+      - db.env
+
+  vmangos_realmd:
+    build: 
+      context: .
+      dockerfile: docker/realmd/Dockerfile
+    ports: 
+      - 3724:3724
+    depends_on:
+      - vmangos_database
+    links:
+      - vmangos_database 
+    restart: unless-stopped
+
+  vmangos_mangos:
+    tty: true
+    stdin_open: true
+    ports: 
+      - 8085:8085
+    build:
+      context: .
+      dockerfile: docker/mangos/Dockerfile
+    depends_on:
+      - vmangos_database
+    links:
+      - vmangos_database
+    restart: unless-stopped
+
