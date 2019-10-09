@@ -1,1 +1,1 @@
-This folder containers the containers used in this project.
+This folder stores the container configs used in this project.

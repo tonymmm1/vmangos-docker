@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/database/Dockerfile
-    ports: 
+    ports:
       - 3306:3306
     restart: unless-stopped
     volumes:
@@ -13,7 +13,7 @@ services:
         target: /var/lib/mysql
     env_file:
       - db.env
-
+      - server.env
   vmangos_realmd:
     build: 
       context: .
@@ -39,4 +39,3 @@ services:
     links:
       - vmangos_database
     restart: unless-stopped
-

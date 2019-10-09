@@ -8,7 +8,7 @@ COPY src/data/vmaps /opt/vmangos/bin/vmaps
 COPY src/data/mmaps /opt/vmangos/bin/mmaps
 COPY src/data/maps /opt/vmangos/bin/maps
 COPY src/data/5875 /opt/vmangos/bin/5875
-RUN sed -i "s/127.0.0.1/vmangos_database/g" /opt/vmangos/etc/mangosd.conf 
+RUN sed -i "s/127.0.0.1;3306;/vmangos_database;3306;/g" /opt/vmangos/etc/mangosd.conf 
 RUN chmod +x /opt/vmangos/bin/mangosd
 WORKDIR /opt/vmangos/bin
 CMD ./mangosd 
