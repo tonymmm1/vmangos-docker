@@ -1,3 +1,6 @@
 [submodule "src/core"]
 	path = src/core
 	url = https://github.com/vmangos/core
+[submodule "src/database"]
+	path = src/database
+	url = https://github.com/brotalnia/database.git

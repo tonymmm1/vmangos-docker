@@ -1,1 +1,1 @@
-This folder contains the source code for the dockers. Place a data folder with maps,mmaps,vmaps,dbc in here as well as a world.sql file. 
+This folder contains the source code for the dockers. The /database folder is a git submodule containing https://github.com/brotalnia/database. The /core folder is a git submodule containing https://github.com/vmangos/core. The /data folder is for the server maps and dependencies as stated in the main README.md file.

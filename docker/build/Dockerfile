@@ -9,7 +9,7 @@ COPY /src/core/ /opt/core
 ENV vmangos_src /opt/core
 ENV vmangos /opt/vmangos
 
-Entrypoint mkdir $vmangos_src/build && cd $vmangos_src/build && cmake -DDEBUG=0 -DSUPPORTED_CLIENT_BUILD=5875 -DUSE_EXTRACTORS=0 -DCMAKE_INSTALL_PREFIX=$vmangos ../ && make -j $(nproc) && make install && mkdir $vmangos/data && mkdir $vmangos/logs && cp $vmangos/etc/mangosd.conf.dist $vmangos/etc/mangosd.conf && cp $vmangos/etc/realmd.conf.dist $vmangos/etc/realmd.conf && cp -r /opt/vmangos/* /vmangos && cp -r /opt/core/build/* /build 
+Entrypoint mkdir $vmangos_src/build && cd $vmangos_src/build && cmake -DDEBUG=0 -DSUPPORTED_CLIENT_BUILD=5875 -DUSE_EXTRACTORS=0 -DCMAKE_INSTALL_PREFIX=$vmangos ../ && make -j $(nproc) && make install && mkdir $vmangos/data && mkdir $vmangos/logs && cp $vmangos/etc/mangosd.conf.dist $vmangos/etc/mangosd.conf && cp $vmangos/etc/realmd.conf.dist $vmangos/etc/realmd.conf && cp -r /opt/vmangos/* /vmangos
 
 
 

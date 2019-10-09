@@ -2,18 +2,22 @@
 
 echo "Beginning update script"
 
-echo "Running git fetch"
-
-git -C src/core/ fetch origin
+echo "Running git pull"
+git pull
+cd src/database
+git pull 
+cd ..
+cd core/
+git pull 
 
 echo "Running migration merge"
 
-./src/core/sql/migrations/merge.sh
+cd sql/migrations
+./merge.sh
+cd ../../../../
 
 echo "Beginning docker-compose build"
 
-docker-compose build
+./docker-build.sh
 
-echo "Launching containers"
 
-docker-compose up -d
