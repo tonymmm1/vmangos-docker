@@ -28,5 +28,3 @@ docker-compose build vmangos_realmd
 rm .dockerignore
 
 cp dockerignore/.dockerignore .dockerignore
-
-
