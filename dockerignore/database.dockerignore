@@ -1,5 +1,0 @@
-*
-!src/core/sql
-!src/database
-!*.env
-!docker/database
