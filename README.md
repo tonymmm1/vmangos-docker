@@ -25,13 +25,13 @@ For updates that are applied on either of the src/ repositories run update.sh at
 
 Multi-realm:
 
-There is now a script to create a new realm on the same docker host. Copy the script new-realm.sh into the project root folder and execute it. Make sure to run update.sh script first to ensure that db updates are applied into the src/core/sql git submodule. The realm can be custom configured by either manually copying all of the files that are required to start the realm and creating appropriate directories and edits or by executing docker commands to enter the container and editing manually.
+There is now a script to create a new realm on the same docker host. Make sure to run update.sh script first to ensure that db updates are applied into the src/core/sql git submodule. The realm can be custom configured by either manually copying all of the files that are required to start the realm and creating appropriate directories and edits or by executing docker commands to enter the container and editing manually.
 
 List of commands:
 
 
 #General commands
-#Creates and runs containers with serial on
+#Creates and runs containers with console output
 docker-compose up 
 #Creates and detaches from running containers
 docker-compose up -d
