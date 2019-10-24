@@ -10,5 +10,8 @@ chmod +x merge.sh
 ./merge.sh
 cd ../../../../
 
+docker build -t vmangos_build -f docker/build/Dockerfile .
+docker run -v $(pwd)/vmangos:/vmangos vmangos_build
+
 docker-compose build
 docker-compose up -d
