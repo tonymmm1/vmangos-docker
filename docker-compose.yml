@@ -8,12 +8,12 @@ services:
       - 3306:3306
     restart: unless-stopped
     volumes:
-      - type: bind
-        source: ./docker/database/mysql
-        target: /var/lib/mysql
+      - vmangos_database:/var/lib/mysql
     env_file:
       - db.env
       - server.env
+      - mangos.env
+
   vmangos_realmd:
     build: 
       context: .
@@ -34,8 +34,16 @@ services:
     build:
       context: .
       dockerfile: docker/mangos/Dockerfile
+    volumes:
+      - type: bind
+        source: ./docker/mangos/mangos
+        target: /opt/mangos
     depends_on:
       - vmangos_database
     links:
       - vmangos_database
     restart: unless-stopped
+#Docker-compose volumes
+volumes:
+  vmangos_database:
+
