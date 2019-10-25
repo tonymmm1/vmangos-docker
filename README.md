@@ -15,14 +15,14 @@ Changing the exposed port for mysql should also be considered if not removing it
 
 
 <h2>Step 2:</h2>
-<h3> a.)Place dependencies as listed below:</h3> 
+<h3> a.) Place dependencies as listed below:</h3> 
 
 * /src/data 
 * /src/maps
 * /src/mmaps
 * /src/vmaps
 * /src/5875(adjust according to patch release)
-* /src/5875/tbc
+* /src/5875/dbc
 
 <h3>b.) Configuration Files:(*)</h3>
 
