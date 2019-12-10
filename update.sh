@@ -5,7 +5,7 @@ echo "Beginning update script"
 echo "Running git pull"
 git pull
 git pull --recurse-submodules
-git submodule update --remote
+git submodule update --remote 
 
 echo "Running migration merge"
 

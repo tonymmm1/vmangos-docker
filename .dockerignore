@@ -1,4 +1,6 @@
 .git
 .gitmodules
 *.md
+src/data
+src/database
 
