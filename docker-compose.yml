@@ -21,7 +21,6 @@ services:
     env_file: 
       - ./env/db.env
       - ./env/mangos.env
-      - ./env/server.env
     restart: unless-stopped
 
   vmangos_realmd:
