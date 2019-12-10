@@ -1,4 +1,4 @@
-<h1>Release: 0.2.1</h1>
+<h1>Release: 0.3.0</h1>
 
 This is a project that is based on the vmangos core running on Docker. 
 
@@ -26,14 +26,10 @@ Changing the exposed port for mysql should also be considered if not removing it
 
 <h3>b.) Configuration Files:(*)</h3>
 
-* Server config: server.env
-* Database config: db.env
-* Mangos config: mangos.env
-* Mangos server: /vmangos
-* Mangos server configs: /vmangos/etc
+* Server config: /config
+* Database config: /env/db.env
+* Vmangos: /vmangos
 * Database volume: /var/lib/docker/volumes/vmangos_database
-* Scripts: /scripts
-* Development scripts: /development
 
 <h3>c.) Run update.sh(*)</h3>
   
@@ -47,12 +43,6 @@ Let the container create and finish up the process until there is a line with a 
 <h3>d). Configure realm ip address</h3>
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections. Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
-<h2>Multi-Realm:</h2>
-There is now a script to create a new realm on the same docker host. This script is meant to be run after the initial realm has been created.
-<h3>a). Run update.sh(*)</h3>
-<h3>b). Run new-realm.sh</h3>
-<h3>c). Run docker-compose ps to check status of containers
-  
 <h2>List of Commands:</h2>
 <h3>General commands(All commands must be run from within the project directory)</h3>
 
