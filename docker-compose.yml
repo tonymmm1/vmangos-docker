@@ -13,11 +13,9 @@ services:
       - type: bind
         source: ./src/core/sql
         target: /opt/vmangos/sql
-        read_only: true
       - type: bind
         source: ./src/database
         target: /opt/vmangos/sql/database
-        read_only: true
     env_file: 
       - ./env/db.env
       - ./env/mangos.env
