@@ -31,10 +31,6 @@ Changing the exposed port for mysql should also be considered if not removing it
 * Vmangos: /vmangos
 * Database volume: /var/lib/docker/volumes/vmangos_database
 
-<h3>c.) Run update.sh(*)</h3>
-  
-Updates that are applied on either of the src/ repositories might result in errors and or additional bugs. 
-
 <h2>Step 3:</h2>
 <h3>a). Run docker-build.sh
 <h3>b). Run docker-compose up vmangos_database</h3>  
