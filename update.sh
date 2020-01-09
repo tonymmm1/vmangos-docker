@@ -21,6 +21,6 @@ echo "Beginning docker-compose build"
 echo "Launching containers"
 
 docker-compose up -d vmangos_database
-docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/sql/migrations/world_db_updates.sql' 
+docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql' 
 docker-compose up -d
 
