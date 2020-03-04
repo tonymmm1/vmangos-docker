@@ -1,4 +1,4 @@
-<h1>Release: 0.3.0</h1>
+<h1>Release: 0.3.1</h1>
 
 This is a project that is based on the vmangos core running on Docker. 
 
@@ -23,6 +23,7 @@ Changing the exposed port for mysql should also be considered if not removing it
 * /src/data/vmaps
 * /src/data/5875(adjust according to patch release)
 * /src/data/5875/dbc
+* /src/ccache
 
 <h3>b.) Configuration Files:(*)</h3>
 
