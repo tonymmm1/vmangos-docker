@@ -9,7 +9,10 @@ git submodule update --remote
 
 echo "Running migration merge"
 
-cd src/core/sql/migrations
+cd src/core
+git checkout development
+git pull
+cd sql/migrations
 chmod +x merge.sh
 ./merge.sh
 cd ../../../../
