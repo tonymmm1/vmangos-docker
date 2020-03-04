@@ -1,6 +1,11 @@
 FROM ubuntu:18.04
 
-RUN apt-get update -y && apt-get install software-properties-common -y && add-apt-repository universe -y && apt-get update -y && apt-get install build-essential gcc g++ automake git-core git autoconf make patch libmysql++-dev libtool libssl-dev grep binutils zlibc libc6 libbz2-dev cmake subversion libboost-all-dev wget tmux p7zip-full libtbb-dev libace-dev libmysqlclient-dev openssl libssl-dev zlib1g-dev p7zip-full -y
+RUN apt-get update -y && apt-get install software-properties-common -y && add-apt-repository universe -y && apt-get update -y && apt-get install build-essential gcc g++ automake git-core git autoconf make patch libmysql++-dev libtool libssl-dev grep binutils zlibc libc6 libbz2-dev cmake subversion libboost-all-dev wget tmux p7zip-full libtbb-dev libace-dev libmysqlclient-dev openssl libssl-dev zlib1g-dev p7zip-full ccache -y
+
+RUN ln -s /usr/bin/ccache /usr/local/bin/gcc \ 
+	&& ln -s /usr/bin/ccache /usr/local/bin/g++ \
+	&& ln -s /usr/bin/ccache /usr/local/bin/cc \
+        && ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN export ACE_ROOT=/usr/include/ace && export TBB_ROOT_DIR=/usr/include/tbb
 

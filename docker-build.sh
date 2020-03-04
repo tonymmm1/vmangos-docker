@@ -10,7 +10,5 @@ chmod +x merge.sh
 ./merge.sh
 cd ../../../../
 
-docker build -t vmangos_build -f docker/build/Dockerfile . && docker run -v $(pwd)/vmangos:/vmangos -v $(pwd)/src/database:/database vmangos_build
+docker build -t vmangos_build -f docker/build/Dockerfile . && docker run -v $(pwd)/vmangos:/vmangos -v $(pwd)/src/database:/database -v $(pwd)/src/ccache:/ccache -e CCACHE_DIR=/ccache vmangos_build 
 
-docker-compose build
-docker-compose up -d
