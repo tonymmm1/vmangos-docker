@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "Beginning update script"
-
+docker-compose down
 echo "Running git pull"
 git pull
 git pull --recurse-submodules
