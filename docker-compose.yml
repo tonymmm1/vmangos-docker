@@ -1,6 +1,7 @@
 version: "3.2"
 services:
   vmangos_database:
+    container_name: vmangos_database
     build:
       context: .
       dockerfile: docker/database/Dockerfile
@@ -22,6 +23,7 @@ services:
     restart: unless-stopped
 
   vmangos_realmd:
+    container_name: vmangos_realmd
     build: 
       context: .
       dockerfile: docker/realmd/Dockerfile
@@ -43,6 +45,7 @@ services:
     restart: unless-stopped
 
   vmangos_mangos:
+    container_name: vmangos_mangos
     tty: true
     stdin_open: true
     ports: 
