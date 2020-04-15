@@ -6,6 +6,18 @@ Source code from https://github.com/vmangos/core.
 
 The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
 Changing the exposed port for mysql should also be considered if not removing it all together. 
+
+<h2>Arm Notice:</h2>
+
+Make sure the change the value of 'make -j$(nprocs)' to 'make -j1' or 'make -j2' in the last line of '/docker/build/Dockerfile' depending on if platform has less than 4GB of ram. 
+```
+vim /docker/build/Dockerfile
+```
+```
+#change according to platform specs
+... make -j$(nproc) ...
+```
+
 <h2>Step 1:</h2>
 <h3>Requirements:</h3>
 
@@ -13,6 +25,7 @@ Changing the exposed port for mysql should also be considered if not removing it
 
 * docker-compose installed
 
+* Operating System that is 64bit (Currently Raspbian is only 32bit)
 
 <h2>Step 2:</h2>
 <h3> a.) Place dependencies as listed below:</h3> 
