@@ -1,4 +1,4 @@
-<h1>Release: 0.3.1</h1>
+<h1>Release: 0.3.2</h1>
 
 This is a project that is based on the vmangos core running on Docker. 
 
