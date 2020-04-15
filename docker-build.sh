@@ -4,6 +4,7 @@
 
 git submodule init
 git submodule update 
+git submodule foreach git pull origin master
 
 cd src/core/sql/migrations
 chmod +x merge.sh
