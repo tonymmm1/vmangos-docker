@@ -56,13 +56,16 @@ Use mysql-workbench or from the vmangos_database container edit the ip address c
 <h2>List of Commands:</h2>
 <h3>General commands(All commands must be run from within the project directory)</h3>
 
-* docker-compose up (Creates and runs containers with console output)
-* docker-compose up -d (Creates and detaches from running containers)
-* docker-compose ps (Lists all running containers)
-* docker-compose stop (Stops containers without destroying)
-* docker-compose restart (Restart containers)
-* docker-compose down (Destroys containers)
-* docker-compose down -v (Destroys containers and volumes)
-* docker-compose exec vmangos_(container) bash (Executes bash inside container of choice)
-* docker ps (Lists all running docker processes)
-* docker attach (applies to the vmangos_mangos container)
+```
+docker-compose up (Creates and runs containers with console output)
+docker-compose up -d (Creates and detaches from running containers)
+docker-compose ps (Lists all running containers)
+docker-compose stop (Stops containers without destroying)
+docker-compose restart (Restart containers)
+docker-compose down (Destroys containers)
+docker-compose down -v (Destroys containers and volumes)
+docker-compose exec vmangos_(container) bash (Executes bash inside container of choice)
+docker ps (Lists all running docker processes)
+#using tmux/screen is recommended to not kill
+docker attach (applies to the vmangos_mangos/realmd/database)  session
+```
