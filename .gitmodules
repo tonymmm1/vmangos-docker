@@ -1,6 +1,8 @@
 [submodule "src/core"]
 	path = src/core
 	url = https://github.com/vmangos/core
+	branch = development
 [submodule "src/database"]
 	path = src/database
-	url = https://github.com/brotalnia/database.git
+	url = https://github.com/brotalnia/database
+	branch = master

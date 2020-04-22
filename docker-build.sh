@@ -3,8 +3,7 @@
 #This script leverages .dockerignore files to help speed up the building process for each container and reduce waiting for docker build context
 
 git submodule init
-git submodule update 
-git submodule foreach git pull origin master
+git submodule update --remote --recursive
 
 cd src/core/sql/migrations
 chmod +x merge.sh
