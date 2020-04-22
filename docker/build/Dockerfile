@@ -1,17 +1,18 @@
 FROM ubuntu:18.04
 
-#RUN apt-get update -y && apt-get install software-properties-common -y && add-apt-repository universe -y && apt-get update -y && apt-get install build-essential gcc g++ automake git-core git autoconf make patch libmysql++-dev libtool libssl-dev grep binutils zlibc libc6 libbz2-dev cmake subversion libboost-all-dev wget tmux p7zip-full libtbb-dev libace-dev libmysqlclient-dev openssl libssl-dev zlib1g-dev p7zip-full ccache -y
-
 RUN apt-get update -y && apt-get upgrade -y
 
 RUN apt-get install -y \
-	g++ \
+	build-essential \ 
+	git \
 	cmake \
 	libtbb-dev \
-	libcurl4-openssl-dev \
+	openssl \
+	libssl-dev \
 	libace-dev \
-	libmysql++-dev \ 
 	p7zip-full \ 
+	zlib1g-dev \
+	libmysqlclient-dev \ 
 	ccache 
 		
 RUN ln -s /usr/bin/ccache /usr/local/bin/gcc \ 
