@@ -15,6 +15,9 @@ echo 'Importing world'
 mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/database/$world.sql
 echo 'Databases imported'
 
+echo 'Upgrading mysql'
+mysql_upgrade -u root -p$MYSQL_ROOT_PASSWORD
+
 echo 'Importing changes'
 mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
 mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql
