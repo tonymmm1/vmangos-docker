@@ -8,19 +8,13 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - type: volume
-        source: vmangos_database
-        target: /var/lib/mysql
-      - type: bind
-        source: ./src/core/sql
-        target: /opt/vmangos/sql
-      - type: bind
-        source: ./src/database
-        target: /opt/vmangos/sql/database
+      - vmangos_database:/var/lib/mysql           #vmangos_database volume
+      - ./src/core/sql:/opt/vmangos/sql           #vmangos src
+      - ./src/database:/opt/vmangos/sql/database  #vmangos src
     env_file: 
       - ./env/db.env
       - ./env/mangos.env
-    restart: unless-stopped
+    restart: always
 
   vmangos_realmd:
     container_name: vmangos_realmd
@@ -30,24 +24,18 @@ services:
     ports: 
       - 3724:3724
     volumes:
-      - type: bind
-        source: ./config/realmd.conf
-        target: /opt/vmangos/etc/realmd.conf
-        read_only: true
-      - type: bind
-        source: ./vmangos/bin/realmd
-        target: /opt/vmangos/bin/realmd
-        read_only: true
+      - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro  #realmd conf
+      - ./vmangos/bin/realmd:/opt/vmangos/bin/realmd:ro       #realmd bin
     depends_on:
       - vmangos_database
     links:
       - vmangos_database
-    restart: unless-stopped
+    restart: always
 
   vmangos_mangos:
     container_name: vmangos_mangos
-    tty: true
-    stdin_open: true
+    tty: true         #enable terminal with docker attach
+    stdin_open: true  #enable terminal with docker attach
     ports: 
       - 8085:8085
     build:
@@ -55,37 +43,19 @@ services:
       dockerfile: docker/mangos/Dockerfile
     image: vmangos_mangos:latest
     volumes:
-      - type: bind
-        source: ./config/mangosd.conf
-        target: /opt/vmangos/etc/mangosd.conf
-        read_only: true
-      - type: bind
-        source: ./vmangos/bin/mangosd
-        target: /opt/vmangos/bin/mangosd
-        read_only: true
-      - type: bind
-        source: ./src/data/5875
-        target: /opt/vmangos/bin/5875
-        read_only: true
-      - type: bind
-        source: ./src/data/vmaps
-        target: /opt/vmangos/bin/vmaps
-        read_only: true
-      - type: bind
-        source: ./src/data/maps
-        target: /opt/vmangos/bin/maps
-        read_only: true
-      - type: bind
-        source: ./src/data/mmaps
-        target: /opt/vmangos/bin/mmaps
-        read_only: true
+      - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro  #mangosd conf
+      - ./vmangos/bin/mangosd:/opt/vmangos/bin/mangosd:ro       #mangosd bin
+      - ./src/data/5875:/opt/vmangos/bin/5875:ro                #dbc
+      - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro              #vmaps
+      - ./src/data/maps:/opt/vmangos/bin/maps:ro                #maps
+      - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro              #mmaps
     links:
       - vmangos_database
     depends_on:
       - vmangos_database
     env_file:
       - ./env/mangos.env
-    restart: unless-stopped
+    restart: always
 
 #Docker-compose volumes
 volumes:
