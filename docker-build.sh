@@ -15,5 +15,5 @@ docker build -t vmangos_build -f docker/build/Dockerfile . &&\
 	-v $(pwd)/src/database:/database \
 	-v $(pwd)/src/ccache:/ccache \
 	-e CCACHE_DIR=/ccache \
-	--rm 
+	--rm \
 	vmangos_build 
