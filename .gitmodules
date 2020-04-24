@@ -9,4 +9,4 @@
 [submodule "src/fusiongen"]
 	path = src/fusiongen
 	url = https://gitlab.com/omghixd/fusiongen.git
-	branch = head
+	branch = master
