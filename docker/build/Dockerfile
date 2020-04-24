@@ -28,7 +28,17 @@ ENV vmangos_src /opt/core
 ENV vmangos /opt/vmangos
 ENV world world_full_05_october_2019
 
-CMD mkdir $vmangos_src/build && cd $vmangos_src/build && cmake -DDEBUG=0 -DSUPPORTED_CLIENT_BUILD=5875 -DUSE_EXTRACTORS=1 -DCMAKE_INSTALL_PREFIX=$vmangos ../ && make -j $(nproc) && make install && mkdir $vmangos/data && mkdir $vmangos/logs && cp $vmangos/etc/mangosd.conf.dist $vmangos/etc/mangosd.conf && cp $vmangos/etc/realmd.conf.dist $vmangos/etc/realmd.conf && cp -r /opt/vmangos/* /vmangos && cd /database && 7z e $world.7z
+CMD mkdir $vmangos_src/build && cd $vmangos_src/build && \
+	cmake -DDEBUG=0 -DSUPPORTED_CLIENT_BUILD=5875 \
+	-DUSE_EXTRACTORS=1 \
+	-DCMAKE_INSTALL_PREFIX=$vmangos ../ && \
+	make -j $(nproc) && \
+	make install && \
+	mkdir $vmangos/data && \
+	mkdir $vmangos/logs && \
+	cp $vmangos/etc/mangosd.conf.dist $vmangos/etc/mangosd.conf && \
+	cp $vmangos/etc/realmd.conf.dist $vmangos/etc/realmd.conf && \
+	cp -r /opt/vmangos/* /vmangos && cd /database && 7z e $world.7z
 
 
 

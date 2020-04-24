@@ -15,8 +15,12 @@ echo 'Importing world'
 mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/database/$world.sql
 echo 'Databases imported'
 
+echo 'Upgrading mysql'
+mysql_upgrade -u root -p$MYSQL_ROOT_PASSWORD
+
 echo 'Importing changes'
 mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
+mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql
 
 echo 'Configuring default realm'
 mysql -u root -p$MYSQL_ROOT_PASSWORD -e "INSERT INTO realmd.realmlist (name, address, port, icon, realmflags, timezone, allowedSecurityLevel, population, gamebuild_min, gamebuild_max, flag, realmbuilds) VALUES ('$realm_name', '$realm_ip', '$realm_port', '$realm_icon', '$realmflags', '$timezone', '$allowedSecurityLevel', '$population', '$gamebuild_min', '$gamebuild_max', '$flag','');"
