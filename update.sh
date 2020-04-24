@@ -1,5 +1,5 @@
 #!/bin/sh
-PATH=$(pwd)
+root=$(pwd)
 echo "Beginning update script"
 docker-compose down
 echo "Running git pull"
@@ -11,7 +11,7 @@ echo "Running migration merge"
 cd src/core/sql/migrations
 chmod +x merge.sh
 ./merge.sh
-cd $PATH
+cd $root
 
 echo "Beginning docker-compose build"
 
