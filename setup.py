@@ -127,7 +127,7 @@ def update():
     docker_build()      #builds vmangos
    
     #Merging all sql migrations
-    os.chdir("/src/core/sql/migrations")        #cd /src/core/sql/migrations
+    os.chdir("src/core/sql/migrations")        #cd /src/core/sql/migrations
     subprocess.run(["chmod","+x","merge.sh"])   #chmod +x merge.sh
     subprocess.run(["./merge.sh"])              #./merge.sh
     os.chdir(path)                              #cd path 
