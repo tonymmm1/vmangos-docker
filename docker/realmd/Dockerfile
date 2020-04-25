@@ -8,7 +8,7 @@ RUN apt-get update -y && apt-get install -y \
 	zlib1g-dev \
 	libmysqlclient-dev 
 
-COPY ./vmangos/bin/realmd
+COPY ./vmangos/bin/realmd /opt/vmangos/bin
 
 WORKDIR /opt/vmangos/bin
 
