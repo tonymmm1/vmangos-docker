@@ -3,7 +3,8 @@
 This is a project that is based on the VMaNGOS core running on Docker. 
 
 Source code from https://github.com/vmangos/core.
-Website code from https://gitlab.com/omghixd/fusiongen.git
+
+Website code from https://gitlab.com/omghixd/fusiongen.git.
 
 The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
 Changing the exposed port for mysql should also be considered if not removing it all together. Website functionality will be configured with a separate function within setup.sh.
@@ -54,11 +55,13 @@ vim /docker/build/Dockerfile
 * Website config: 	/web
 
 <h2>Step 3:</h2>
-<h3>a). Run setup.py for creating containers and for managing this project.
+<h3>a). Run setup.py for creating containers and for managing this project.</h3>
+  
 ```
 chmod +x 
 ./setup.py
 ```
+
 <h3>b). Configure realm ip address</h3>
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
