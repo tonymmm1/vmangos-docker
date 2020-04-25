@@ -6,7 +6,7 @@ import shutil
 import subprocess
 
 #Variable declaration
-debug = 1           #Debug toggle: 0. Disable,1. Enable
+debug = 0           #Debug toggle: 0. Disable,1. Enable
 path = os.getcwd()  #Sets defaults path to project directory
 
 print('Beginning VMaNGOS setup')
@@ -29,10 +29,11 @@ while True:
         print ('\nInput is invalid')
         continue
 
-if (mode == 0 | mode == 1 | mode == 2):
+if (mode != 3):
     while True:
         try:
             threads = int(input('Input number of threads to use for compiling\nRecommended values 1-2 for <4GB ram\nInput: '))
+            break
         except KeyboardInterrupt:   #Exit program with keyboard interrupt
             print('\n')
             exit()
@@ -51,19 +52,15 @@ def git_submodules():
 
     #Fetches updates from git submodules head
     subprocess.run(['git','submodule','update','--remote','--recursive'])   #git submodule update --remote --recursive
-
-    #Displays git submodule status
-    print("\nGit submodules:")
-    subprocess.run(['git','submodule','status'])                            #git submodule status
+    if(debug == 1):
+        #Displays git submodule status
+        print("\nGit submodules:")
+        subprocess.run(['git','submodule','status'])                            #git submodule status
 
 def docker_build():
     global mode     #Global mode variable 
     global threads  #Global threads variable
     global debug    #Global debug variable
-
-    dockerfile = os.path.join(path + "docker/build/Dockerfile")
-    dockerfile_read = open(dockerfile,"r+")
-    replacement = dockerfile.replace('ENV threads 2','ENV threads ' + threads) 
 
     #Builds vmangos_build,compiles vmangos src, and outputs binaries
     subprocess.run( 
@@ -72,6 +69,7 @@ def docker_build():
                 '-v',os.path.join(path,'src/database:/database'),   #   -v $(pwd)/src/database:/database \
                 '-v',os.path.join(path,'src/ccache:/ccache'),       #   -v $(pwd)/src/ccache:/ccache \
                 '-e','CCACHE_DIR=/ccache',                          #   -e CCACHE_DIR=/ccache \
+                'e','threads=' + str(threads)                       #   -e threads=$(nprocs) \
                 '--rm',                                             #   --rm \
                 'vmangos_build'])                                   #   vmangos_build
             
@@ -80,10 +78,10 @@ def docker_build():
         with open(path + 'docker/database/generate-db-1.sql',"a") as file:
 
             #Creates user and database for website
-            file.write("CREATE DATABASE fusiongen;")
-            file.write("create user 'fusiongen'@'localhost' identified by 'fusiongen';")
-            file.write("SET PASSWORD FOR 'fusiongen'@'localhost' = PASSWORD('fusiongen');")
-            file.write("grant all on fusiongen.* to fusiongen@'localhost' with grant option;")
+            file.write("CREATE DATABASE fusiongen;\n")
+            file.write("create user 'fusiongen'@'localhost' identified by 'fusiongen';\n")
+            file.write("SET PASSWORD FOR 'fusiongen'@'localhost' = PASSWORD('fusiongen');\n")
+            file.write("grant all on fusiongen.* to fusiongen@'localhost' with grant option;\n")
             file.write("flush privileges;")
             file.close()
          
@@ -157,17 +155,24 @@ def update():
 def reset():
 
     print('\nBeginning reset')
-    subprocess.run(['git','clean','-fd'])       #git clean -fd
-    subprocess.run(['git','checkout','master']) #git checkout master
-    subprocess.run(['git reset --hard master']) #git reset --hard master
+    subprocess.run(['git','clean','-fd'])               #git clean -fd
+    subprocess.run(['git','checkout','master'])         #git checkout master
+    subprocess.run(['git','reset','--hard','master'])   #git reset --hard master
     print('\nReset complete')
     
     exit()  #exists program
 
 #Calls functions
 
-#Modes 0-1
-if (mode == 0 | mode == 1 ):
+#Modes 0
+if (mode == 0):
+    git_submodule()
+    docker_build()
+    setup()
+
+#Mode 1
+if (mode == 1):
+    git_submodule()
     docker_build()
     setup()
 
