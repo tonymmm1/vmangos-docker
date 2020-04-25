@@ -109,9 +109,7 @@ def setup():
     os.chdir(path)                              #cd path 
 
     #Starts database container in the background
-    subprocess.run(['docker-compose','up','-d','vmangos_database'])             #docker-compose up -d vmangos_database
-
-    print("Setup is complete wait until mysql db\docker-compose up -d")
+    subprocess.run(['docker-compose','up','-d'])             #docker-compose up -d 
 
     exit()
 
