@@ -74,6 +74,7 @@ vim web/site.conf
 server_name ${FQDN};
 ```
 <h3> b). Website installation</h3>
+
 1. Visit http://${FQDN}/install
 2. Proceed with installation steps 
 
