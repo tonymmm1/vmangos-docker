@@ -63,20 +63,20 @@ def docker_build():
     global debug    #Global debug variable
 
     #Builds vmangos_build,compiles vmangos src, and outputs binaries
+    subprocess.run(['docker','build','-t','vmangos_build','-f','docker/build/Dockerfile','.'])
     subprocess.run( 
             ['docker','run',                                        #docker run \
                 '-v',os.path.join(path,'vmangos:/vmangos'),         #   -v $(pwd)/vmangos:/vmangos \
                 '-v',os.path.join(path,'src/database:/database'),   #   -v $(pwd)/src/database:/database \
                 '-v',os.path.join(path,'src/ccache:/ccache'),       #   -v $(pwd)/src/ccache:/ccache \
                 '-e','CCACHE_DIR=/ccache',                          #   -e CCACHE_DIR=/ccache \
-                'e','threads=' + str(threads),                      #   -e threads=$(nprocs) \
+                '-e','threads=' + str(threads),                      #   -e threads=$(nprocs) \
                 '--rm',                                             #   --rm \
                 'vmangos_build'])                                   #   vmangos_build
             
     if(mode == 0):
 
-        with open(path + 'docker/database/generate-db-1.sql',"a") as file:
-
+        with open(path + '/docker/database/generate-db-1.sql',"a+") as file:
             #Creates user and database for website
             file.write("CREATE DATABASE fusiongen;\n")
             file.write("create user 'fusiongen'@'localhost' identified by 'fusiongen';\n")
@@ -103,16 +103,15 @@ def setup():
     print("Beginning setup")
 
     #Merging all sql migrations
-    os.chdir("/src/core/sql/migrations")        #cd /src/core/sql/migrations
+    os.chdir("src/core/sql/migrations")        #cd /src/core/sql/migrations
     subprocess.run(["chmod","+x","merge.sh"])   #chmod +x merge.sh
     subprocess.run(["./merge.sh"])              #./merge.sh
     os.chdir(path)                              #cd path 
 
     #Starts database container in the background
     subprocess.run(['docker-compose','up','-d','vmangos_database'])             #docker-compose up -d vmangos_database
-    
 
-    print("Setup is complete")
+    print("Setup is complete wait until mysql db\docker-compose up -d")
 
     exit()
 
@@ -134,6 +133,9 @@ def update():
     subprocess.run(["chmod","+x","merge.sh"])   #chmod +x merge.sh
     subprocess.run(["./merge.sh"])              #./merge.sh
     os.chdir(path)                              #cd path 
+
+    #Builds new containers without cached image layers
+    subprocess.run(['docker-compose','build','--no-cache',])    #docker-compose build --no-cache
 
     print('Updating mangos database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'
@@ -166,13 +168,13 @@ def reset():
 
 #Modes 0
 if (mode == 0):
-    git_submodule()
+    git_submodules()
     docker_build()
     setup()
 
 #Mode 1
 if (mode == 1):
-    git_submodule()
+    git_submodules()
     docker_build()
     setup()
 
