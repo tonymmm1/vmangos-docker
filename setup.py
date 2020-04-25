@@ -135,6 +135,9 @@ def update():
     #Builds new containers without cached image layers
     subprocess.run(['docker-compose','build','--no-cache',])    #docker-compose build --no-cache
 
+    #Builds vmangos_database
+    subprocess.run(['docker-compose','up','-d','vmangos_database']) #docker-compose up -d vmangos_database
+
     print('Updating mangos database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'
     subprocess.run(['docker-compose','exec','vmangos_database','sh','-c',"'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'"])
