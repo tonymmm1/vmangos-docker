@@ -65,6 +65,18 @@ chmod +x
 <h3>b). Configure realm ip address</h3>
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
+<h2>Step 4:</h2>
+<h3> a). Website file configuration
+
+Make sure to edit /web/site.conf and change the server_name
+```
+vim web/site.conf
+server_name ${FQDN};
+```
+<h3> b). Website installation</h3>
+1. Visit http://${FQDN}/install
+2. Proceed with installation steps 
+
 <h2>List of Commands:</h2>
 <h3>General commands(All docker-compose commands must be run from within the project directory)</h3>
 

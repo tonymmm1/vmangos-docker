@@ -25,7 +25,6 @@ services:
       - 3724:3724
     volumes:
       - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro  #realmd conf
-      - ./vmangos/bin/realmd:/opt/vmangos/bin/realmd:ro       #realmd bin
     depends_on:
       - vmangos_database
     restart: always
@@ -42,7 +41,6 @@ services:
     image: vmangos_mangos:latest
     volumes:
       - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro  #mangosd conf
-      - ./vmangos/bin/mangosd:/opt/vmangos/bin/mangosd:ro       #mangosd bin
       - ./src/data/5875:/opt/vmangos/bin/5875:ro                #dbc
       - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro              #vmaps
       - ./src/data/maps:/opt/vmangos/bin/maps:ro                #maps
@@ -51,6 +49,32 @@ services:
       - vmangos_database
     env_file:
       - ./env/mangos.env
+    restart: always
+
+  vmangos_web_nginx:
+    container_name: vmangos_web_nginx
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
+      - ./web/site.conf:/etc/nginx/conf.d/site.conf   #nginx conf
+    depends_on:
+      - vmangos_web_php
+      - vmangos_database
+    restart: always
+
+  vmangos_web_php:
+    container_name: vmangos_web_php
+    build:
+      context: .
+      dockerfile: ./docker/web/Dockerfile
+    image: vmangos_web_php
+    volumes:
+      - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
+      - ./web/php.ini:/usr/local/etc/php/php.ini:ro   #php conf
+    depends_on:
+      - vmangos_database
     restart: always
 
 #Docker-compose volumes
