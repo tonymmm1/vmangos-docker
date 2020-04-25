@@ -69,7 +69,7 @@ def docker_build():
                 '-v',os.path.join(path,'src/database:/database'),   #   -v $(pwd)/src/database:/database \
                 '-v',os.path.join(path,'src/ccache:/ccache'),       #   -v $(pwd)/src/ccache:/ccache \
                 '-e','CCACHE_DIR=/ccache',                          #   -e CCACHE_DIR=/ccache \
-                'e','threads=' + str(threads)                       #   -e threads=$(nprocs) \
+                'e','threads=' + str(threads),                      #   -e threads=$(nprocs) \
                 '--rm',                                             #   --rm \
                 'vmangos_build'])                                   #   vmangos_build
             
