@@ -1,11 +1,12 @@
 <h1>Release: 0.4.0</h1>
 
-This is a project that is based on the vmangos core running on Docker. 
+This is a project that is based on the VMaNGOS core running on Docker. 
 
 Source code from https://github.com/vmangos/core.
+Website code from https://gitlab.com/omghixd/fusiongen.git
 
 The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
-Changing the exposed port for mysql should also be considered if not removing it all together. 
+Changing the exposed port for mysql should also be considered if not removing it all together. Website functionality will be configured with a separate function within setup.sh.
 
 <h2>Arm Notice:</h2>
 
@@ -21,11 +22,17 @@ vim /docker/build/Dockerfile
 <h2>Step 1:</h2>
 <h3>Requirements:</h3>
 
+* Git installed
+
 * Docker-CE installed
 
-* docker-compose installed
+* Docker Compose installed
 
-* Operating System that is 64bit (Currently Raspbian is only 32bit)
+* Operating System that is 64 bit (Currently Raspbian is only 32bit)
+
+* Python 3 installed
+
+* Tmux(recommended for docker attach)
 
 <h2>Step 2:</h2>
 <h3> a.) Place dependencies as listed below:</h3> 
@@ -40,21 +47,23 @@ vim /docker/build/Dockerfile
 
 <h3>b.) Configuration Files:(*)</h3>
 
-* Server config: /config
-* Database config: /env/db.env
-* Vmangos: /vmangos
-* Database volume: /var/lib/docker/volumes/vmangos_database
+* Server config: 	/config
+* Database config: 	/env/db.env
+* VMaNGOS: 		/vmangos
+* Database volume: 	/var/lib/docker/volumes/vmangos_database
+* Website config: 	/web
 
 <h2>Step 3:</h2>
-<h3>a). Run docker-build.sh
-<h3>b). Run docker-compose up vmangos_database</h3>  
-Let the container create and finish up the process until there is a line with a mysql version and it doesnt show any new lines.
-<h3>c). Run docker-compose up -d(or run it without -d to see containers start)
-<h3>d). Configure realm ip address</h3>
-Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections. Using the account and password for the mangos user or the root user as can be configured in db.env. 
+<h3>a). Run setup.py for creating containers and for managing this project.
+```
+chmod +x 
+./setup.py
+```
+<h3>b). Configure realm ip address</h3>
+Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
 <h2>List of Commands:</h2>
-<h3>General commands(All commands must be run from within the project directory)</h3>
+<h3>General commands(All docker-compose commands must be run from within the project directory)</h3>
 
 ```
 docker-compose up (Creates and runs containers with console output)
