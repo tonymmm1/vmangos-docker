@@ -56,10 +56,12 @@ vim /docker/build/Dockerfile
 
 <h2>Step 3:</h2>
 <h3>a). Run setup.py for creating containers and for managing this project.
+  
 ```
 chmod +x 
 ./setup.py
 ```
+
 <h3>b). Configure realm ip address</h3>
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
