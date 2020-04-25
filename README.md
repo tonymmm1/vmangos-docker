@@ -55,7 +55,7 @@ vim /docker/build/Dockerfile
 * Website config: 	/web
 
 <h2>Step 3:</h2>
-<h3>a). Run setup.py for creating containers and for managing this project.
+<h3>a). Run setup.py for creating containers and for managing this project.</h3>
   
 ```
 chmod +x 
