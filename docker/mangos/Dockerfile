@@ -8,7 +8,11 @@ RUN apt-get update -y && apt-get install -y \
 	zlib1g-dev \
 	libmysqlclient-dev 
 
+COPY ./vmangos/bin/mangosd /opt/vmangos/bin
+
 WORKDIR /opt/vmangos/bin
+
+RUN chmod +x /opt/vmangos/bin
 
 CMD ./mangosd -c ../etc/mangosd.conf
 
