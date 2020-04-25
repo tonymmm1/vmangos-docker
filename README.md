@@ -66,7 +66,7 @@ chmod +x
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
 <h2>Step 4:</h2>
-<h3> a). Website file configuration
+<h3> a). Website file configuration</h3>
 
 Make sure to edit /web/site.conf and change the server_name
 ```
