@@ -6,6 +6,7 @@ RUN apt-get update -y && apt-get install -y \
 	openssl \
 	libssl-dev \
 	zlib1g-dev \
+	libcurl4-openssl-dev \
 	libmysqlclient-dev 
 
 COPY ./vmangos/bin/mangosd /opt/vmangos/bin/mangosd
