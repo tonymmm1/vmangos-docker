@@ -35,6 +35,7 @@ services:
     stdin_open: true  #enable terminal with docker attach
     ports: 
       - 8085:8085
+      - 7878:7878
     build:
       context: .
       dockerfile: docker/mangos/Dockerfile
