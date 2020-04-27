@@ -31,7 +31,7 @@ vim /docker/build/Dockerfile
 
 * Operating System that is 64 bit (Currently Raspbian is only 32bit)
 
-* Python 3 installed
+* Python 3.5+ installed
 
 * Tmux(recommended for docker attach)
 
