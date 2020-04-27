@@ -1,3 +1,5 @@
 vmangos
 src/data
 development
+src/ccache
+*.bak

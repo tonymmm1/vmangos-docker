@@ -35,7 +35,6 @@ services:
     stdin_open: true  #enable terminal with docker attach
     ports: 
       - 8085:8085
-      - 7878:7878
     build:
       context: .
       dockerfile: docker/mangos/Dockerfile
@@ -50,33 +49,6 @@ services:
       - vmangos_database
     env_file:
       - ./env/mangos.env
-    restart: always
-
-  vmangos_web_nginx:
-    container_name: vmangos_web_nginx
-    image: nginx:latest
-    ports:
-      - 80:80
-    volumes:
-      - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
-      - ./web/site.conf:/etc/nginx/conf.d/site.conf   #nginx conf
-    depends_on:
-      - vmangos_web_php
-      - vmangos_database
-    restart: always
-
-  vmangos_web_php:
-    container_name: vmangos_web_php
-    build:
-      context: .
-      dockerfile: ./docker/web/Dockerfile
-    image: vmangos_web_php
-    user: 1000:1000
-    volumes:
-      - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
-      - ./web/php.ini:/usr/local/etc/php/php.ini:ro   #php conf
-    depends_on:
-      - vmangos_database
     restart: always
 
 #Docker-compose volumes

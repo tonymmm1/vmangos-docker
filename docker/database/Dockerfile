@@ -1,6 +1,13 @@
 FROM mariadb:latest
 
-RUN apt-get update -y && apt-get install mysql-client libmysqlclient-dev libssl-dev openssl zlib1g-dev p7zip-full -y
+RUN apt-get update -y && apt-get install -y \
+	mysql-client \
+	libmysqlclient-dev \
+	libssl-dev \
+	openssl \
+	zlib1g-dev \
+	libcurl4-openssl-dev \
+	p7zip-full
 
 ENV world world_full_05_october_2019
 
