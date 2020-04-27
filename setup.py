@@ -196,7 +196,7 @@ def docker_build():
         #Disables php-soap in /config/mangosd.conf
         with fileinput.FileInput('config/mangosd.conf', inplace=True) as file:
               for line in file:
-                  print(line.replace('SOAP.Enabled = 1','SOAP.Enabled = 0'),end=''
+                  print(line.replace('SOAP.Enabled = 1','SOAP.Enabled = 0'),end='')
 
         if(debug == 1):
             print(os.lsdir())
