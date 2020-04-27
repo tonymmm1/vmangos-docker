@@ -71,6 +71,7 @@ services:
       context: .
       dockerfile: ./docker/web/Dockerfile
     image: vmangos_web_php
+    user: 1000:1000
     volumes:
       - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
       - ./web/php.ini:/usr/local/etc/php/php.ini:ro   #php conf
