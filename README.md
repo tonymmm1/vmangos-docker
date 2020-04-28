@@ -50,6 +50,7 @@ vim /docker/build/Dockerfile
 
 * Server config: 	/config
 * Database config: 	/env/db.env
+* Database config: 	/db/my.cnf
 * VMaNGOS: 		/vmangos
 * Database volume: 	/var/lib/docker/volumes/vmangos_database
 * Website config: 	/web

@@ -8,10 +8,11 @@ services:
     ports:
       - 3306:3306
     volumes:
+      - ./db/my.cnf:/etc/mysql/my.cnf:ro          #mysql config
       - vmangos_database:/var/lib/mysql           #vmangos_database volume
       - ./src/core/sql:/opt/vmangos/sql           #vmangos src
       - ./src/database:/opt/vmangos/sql/database  #vmangos src
-      - /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro          #host time
     env_file: 
       - ./env/db.env
       - ./env/mangos.env
@@ -26,8 +27,8 @@ services:
       - 3724:3724
     volumes:
       - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro  #realmd conf
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro                      #host time
+      - /etc/timezone:/etc/timezone:ro                        #host timezone
     depends_on:
       - vmangos_database
     restart: always
@@ -48,8 +49,8 @@ services:
       - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro              #vmaps
       - ./src/data/maps:/opt/vmangos/bin/maps:ro                #maps
       - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro              #mmaps
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro                        #host time
+      - /etc/timezone:/etc/timezone:ro                          #host timezone
     depends_on:
       - vmangos_database
     env_file:
