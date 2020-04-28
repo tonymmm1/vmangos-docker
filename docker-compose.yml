@@ -11,6 +11,7 @@ services:
       - vmangos_database:/var/lib/mysql           #vmangos_database volume
       - ./src/core/sql:/opt/vmangos/sql           #vmangos src
       - ./src/database:/opt/vmangos/sql/database  #vmangos src
+      - /etc/localtime:/etc/localtime:ro
     env_file: 
       - ./env/db.env
       - ./env/mangos.env
@@ -25,6 +26,8 @@ services:
       - 3724:3724
     volumes:
       - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro  #realmd conf
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - vmangos_database
     restart: always
@@ -46,6 +49,8 @@ services:
       - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro              #vmaps
       - ./src/data/maps:/opt/vmangos/bin/maps:ro                #maps
       - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro              #mmaps
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - vmangos_database
     env_file:
@@ -60,6 +65,8 @@ services:
     volumes:
       - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
       - ./web/site.conf:/etc/nginx/conf.d/site.conf   #nginx conf
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - vmangos_web_php
       - vmangos_database
@@ -75,6 +82,8 @@ services:
     volumes:
       - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
       - ./web/php.ini:/usr/local/etc/php/php.ini:ro   #php conf
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - vmangos_database
     restart: always
