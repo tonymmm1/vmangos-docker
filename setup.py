@@ -142,7 +142,7 @@ def git_submodules():
     global debug    #Global debug variable
     global threads  #Global threads variable
     #Fetches updates from git submodules head
-    subprocess.run(['git','submodule','update','--init','--remote','--recursive','-j',str(threads)],check=True)   #git submodule update --init --remote --recursive -j $(nprocs)
+    subprocess.run(['git','submodule','update','--init','--remote','--recursive'],check=True)   #git submodule update --init --remote --recursive -j $(nprocs)
     if(debug == 1):
         #Displays git submodule status
         print("debug> git submodule status")
