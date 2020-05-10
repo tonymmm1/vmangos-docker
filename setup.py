@@ -158,7 +158,7 @@ def docker_build():
     global anticheat    #Global anticheat variable
 
     #Builds vmangos_build,compiles vmangos src, and outputs binaries
-    subprocess.run(['docker','build','-t','vmangos_build','-f','docker/build/Dockerfile','.'],check=True)
+    subprocess.run(['docker','build','-t','vmangos_build','-f','docker/build/Dockerfile','.'])
 
     subprocess.run( 
             ['docker','run',                                        #docker run \
@@ -237,11 +237,11 @@ def setup():
     os.chdir(path)                                          #cd path 
 
     #Starts database container in the background
-    subprocess.run(['docker-compose','up','-d'],check=True)    #docker-compose up -d 
+    subprocess.run(['docker-compose','up','-d'])    #docker-compose up -d 
     
     print("\nSetup is complete\n\nPlease wait a few minutes while database is being built\n")
 
-    subprocess.run(['docker-compose','ps'],check=True)
+    subprocess.run(['docker-compose','ps'])
 
     exit()
 
@@ -253,7 +253,7 @@ def update():
     print ('Beginning updates')
 
     #destroys all containers without harming volumes
-    subprocess.run(['docker-compose','down'],check=True)   #docker-compose down
+    subprocess.run(['docker-compose','down'])   #docker-compose down
 
     subprocess.run(['git','pull'],check=True)      #git pull
     subprocess.run(['git','status'],check=True)    #git status
@@ -267,22 +267,22 @@ def update():
     os.chdir(path)                                          #cd path 
 
     #Builds new containers without cached image layers
-    subprocess.run(['docker-compose','build'],check=True)    #docker-compose build --no-cache
+    subprocess.run(['docker-compose','build'])    #docker-compose build --no-cache
 
     #Builds vmangos_database
-    subprocess.run(['docker-compose','up','-d','vmangos_database'],check=True) #docker-compose up -d vmangos_database
+    subprocess.run(['docker-compose','up','-d','vmangos_database']) #docker-compose up -d vmangos_database
 
     time.sleep(30)
 
     print('Updating mangos database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'
-    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'",shell=True,check=True)
+    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'",shell=True)
 
     print('Updating characters database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'
-    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True,check=True) 
+    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True) 
     #rebuilds containers with any new changes
-    subprocess.run(['docker-compose','up','-d'],check=True)    #docker-compose up -d
+    subprocess.run(['docker-compose','up','-d'])    #docker-compose up -d
 
     #Run docker system prune
     subprocess.run(['docker','ps'],check=True)
