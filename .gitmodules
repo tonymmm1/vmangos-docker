@@ -8,5 +8,5 @@
 	branch = master
 [submodule "src/fusiongen"]
 	path = src/fusiongen
-	url = https://gitlab.com/omghixd/fusiongen.git
+	url = https://github.com/FusionGen/FusionGen
 	branch = master
