@@ -4,7 +4,7 @@ This is a project that is based on the VMaNGOS core running on Docker.
 
 Source code from https://github.com/vmangos/core.
 
-Website code from https://gitlab.com/omghixd/fusiongen.git.
+Website code from https://github.com/FusionGen/FusionGen.
 
 The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
 Changing the exposed port for mysql should also be considered if not removing it all together. Website functionality will be configured with a separate function within setup.sh.
