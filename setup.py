@@ -40,6 +40,27 @@ while True:
 if(debug == 1):
     print("debug> mode:",mode)
 
+
+if(mode == 2):
+    while True:
+        try:
+            update_mode = int(input('\nSelect mode\nmode 0: website\nmode 1: no website\nInput: '));
+            break
+        except KeyboardInterrupt:
+            print('\n')
+            exit()
+        except TypeError: 
+            print('\nInput is invalid')
+            continue
+
+#Website mode
+if (mode == 0 or update_mode == 0):
+    compose = 'docker-compose.yml'
+
+#No website mode
+elif (mode == 1 or update_mode == 1):
+    compose = 'noweb-docker-compose.yml'
+
 #Run if not reset mode
 if (mode != 3):
 
@@ -120,7 +141,6 @@ if (mode != 3):
     if(debug == 1):
         print ("debug> client build:",client_build)
 
-
     #Anticheat prompt
     while True:
         try:
@@ -156,6 +176,7 @@ def docker_build():
     global client       #Global client variable
     global client_build #Global client_build variable
     global anticheat    #Global anticheat variable
+    global compose      #Global compose variable
 
     #Builds vmangos_build,compiles vmangos src, and outputs binaries
     subprocess.run(['docker','build','-t','vmangos_build','-f','docker/build/Dockerfile','.'])
@@ -184,26 +205,9 @@ def docker_build():
             file.write("flush privileges;")
             file.close()
 
-    #Non-web 
-    elif(mode == 1):
-        
-        #Copies docker-compose.yml to web-docker.compose.yml
-        shutil.copyfile('docker-compose.yml','web-docker-compose.yml')          #cp docker-compose.yml web-docker-compose.yml
-
-        #Replaces docker-compose.yml with contents of noweb-docker-compose.yml
-        shutil.copyfile('noweb-docker-compose.yml','docker-compose.yml')        #cp noweb-docker-compose.yml docker-compose.yml
-      
-        #Disables php-soap in /config/mangosd.conf
-        with fileinput.FileInput('config/mangosd.conf', inplace=True) as file:
-              for line in file:
-                  print(line.replace('SOAP.Enabled = 1','SOAP.Enabled = 0'),end='')
-
-        if(debug == 1):
-            print(os.lsdir())
-
     #Adjusts filepath in docker-compose depending on client version
     if (client != 10 and client != 11):
-        with fileinput.FileInput('docker-compose.yml', inplace=True) as file:
+        with fileinput.FileInput(compose, inplace=True) as file:
             for line in file:
                 print(line.replace('./src/data/5875','./src/data/' + str(client_build) + ':ro'),end='')
         with fileinput.FileInput('config/mangosd.conf',inplace=True) as file: 
@@ -219,6 +223,7 @@ def setup():
     global user         #Global user variable
     global user_input   #Global user_input variable
     global mode         #Global mode variable
+    global compose      #Global compose variable
     
     print("Beginning setup")
 
@@ -231,17 +236,17 @@ def setup():
         subprocess.run(['chown','-R',user,'.']) #chown 1000:1000
     
     #Merging all sql migrations
-    os.chdir("src/core/sql/migrations")                     #cd /src/core/sql/migrations
-    subprocess.run(["chmod","+x","merge.sh"],check=True)    #chmod +x merge.sh
-    subprocess.run(["./merge.sh"],check=True)               #./merge.sh
-    os.chdir(path)                                          #cd path 
+    os.chdir("src/core/sql/migrations")         #cd /src/core/sql/migrations
+    subprocess.run(["chmod","+x","merge.sh"])   #chmod +x merge.sh
+    subprocess.run(["./merge.sh"])              #./merge.sh
+    os.chdir(path)                              #cd path 
 
     #Starts database container in the background
-    subprocess.run(['docker-compose','up','-d'])    #docker-compose up -d 
-    
+    subprocess.run(['docker-compose','-f',compose,'up','-d'])   #docker-compose -f docker-compose.yml up -d
+
     print("\nSetup is complete\n\nPlease wait a few minutes while database is being built\n")
 
-    subprocess.run(['docker-compose','ps'])
+    subprocess.run(['docker-compose','-f',compose,'ps'])    #docker-compose -f docker-compose.yml/noweb-docker-compose.yml ps
 
     exit()
 
@@ -249,11 +254,12 @@ def setup():
 def update():
     global debug    #Global debug variable
     global mode     #Global mode variable
+    global compose
 
     print ('Beginning updates')
 
     #destroys all containers without harming volumes
-    subprocess.run(['docker-compose','down'])   #docker-compose down
+    subprocess.run(['docker-compose','-f',compose,'down'])   #docker-compose -f docker-compose.yml/noweb-docker-compose.yml down
 
     subprocess.run(['git','pull'],check=True)      #git pull
     subprocess.run(['git','status'],check=True)    #git status
@@ -261,28 +267,28 @@ def update():
     docker_build()      #builds vmangos
    
     #Merging all sql migrations
-    os.chdir("src/core/sql/migrations")                     #cd /src/core/sql/migrations
-    subprocess.run(["chmod","+x","merge.sh"],check=True)    #chmod +x merge.sh
-    subprocess.run(["./merge.sh"],check=True)               #./merge.sh
-    os.chdir(path)                                          #cd path 
+    os.chdir("src/core/sql/migrations")             #cd /src/core/sql/migrations
+    subprocess.run(["chmod","+x","merge.sh"])       #chmod +x merge.sh
+    subprocess.run(["./merge.sh"])                  #./merge.sh
+    os.chdir(path)                                  #cd path 
 
     #Builds new containers without cached image layers
-    subprocess.run(['docker-compose','build'])    #docker-compose build --no-cache
+    subprocess.run(['docker-compose','-f',compose,'build'])    #docker-compose build --no-cache
 
     #Builds vmangos_database
-    subprocess.run(['docker-compose','up','-d','vmangos_database']) #docker-compose up -d vmangos_database
+    subprocess.run(['docker-compose','-f',compose,'up','-d','vmangos_database']) #docker-compose up -d vmangos_database
 
     time.sleep(30)
 
     print('Updating mangos database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'
-    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'",shell=True)
+    subprocess.run("docker-compose" + " -f " + compose + " exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'",shell=True)
 
     print('Updating characters database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'
-    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True) 
+    subprocess.run("docker-compose" + " -f " + compose + " exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True) 
     #rebuilds containers with any new changes
-    subprocess.run(['docker-compose','up','-d'])    #docker-compose up -d
+    subprocess.run(['docker-compose','-f',compose,'up','-d'])    #docker-compose up -d
 
     #Run docker system prune
     subprocess.run(['docker','ps'],check=True)

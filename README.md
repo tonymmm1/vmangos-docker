@@ -1,4 +1,4 @@
-<h1>Release: 0.4.0</h1>
+<h1>Release: 0.4.1</h1>
 
 This is a project that is based on the VMaNGOS core running on Docker. 
 
@@ -27,7 +27,7 @@ vim /docker/build/Dockerfile
 
 * Docker-CE installed
 
-* Docker Compose installed
+* Docker Compose 1.22.0+ installed
 
 * Operating System that is 64 bit (Currently Raspbian is only 32bit)
 
@@ -82,6 +82,8 @@ server_name ${FQDN};
 <h2>List of Commands:</h2>
 <h3>General commands(All docker-compose commands must be run from within the project directory)</h3>
 
+For non-website configs make sure to replace docker-compose with docker-compose -f noweb-docker-compose.yml
+
 ```
 docker-compose up (Creates and runs containers with console output)
 docker-compose up -d (Creates and detaches from running containers)
@@ -93,5 +95,5 @@ docker-compose down -v (Destroys containers and volumes)
 docker-compose exec vmangos_(container) bash (Executes bash inside container of choice)
 docker ps (Lists all running docker processes)
 #using tmux/screen is recommended to not kill
-docker attach (applies to the vmangos_mangos/realmd/database)  session
+docker attach (applies to the vmangos_mangos/realmd/database) session
 ```
