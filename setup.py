@@ -52,13 +52,18 @@ if(mode == 2):
         except TypeError: 
             print('\nInput is invalid')
             continue
+    if(update_mode == 0):
+        compose = 'docker-compose.yml'
+
+    elif(update_mode == 1):
+        compose = 'noweb-docker-compose.yml'
 
 #Website mode
-if (mode == 0 or update_mode == 0):
+if (mode == 0):
     compose = 'docker-compose.yml'
 
 #No website mode
-elif (mode == 1 or update_mode == 1):
+elif (mode == 1):
     compose = 'noweb-docker-compose.yml'
 
 #Run if not reset mode
