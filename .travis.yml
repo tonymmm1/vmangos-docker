@@ -1,0 +1,25 @@
+#Travis job summary:
+language: python
+arch: 
+  - amd64
+
+dist: bionic
+
+services: 
+  - docker
+
+before_script:
+  - chmod +x setup.py
+
+addons:
+  apt:
+    update: true
+
+scripts: |-
+  ./setup.py -m 1 -t 2 
+  sleep 180
+  docker-compose ps
+  docker-compose logs vmangos_database
+  docker-compose logs vmangos_realmd
+  docker-compose logs vmangos_mangos
+
