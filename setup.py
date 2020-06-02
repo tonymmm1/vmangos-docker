@@ -3,165 +3,180 @@
 #Description:
 #This file will serve as the setup for this project
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+import argparse
 import fileinput
 import os
+import platform
+import re
 import shutil
 import subprocess
 import time
+
+from argparse import RawTextHelpFormatter
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Variable declaration
 debug = 0           #Debug toggle: 0. Disable,1. Enable
 path = os.getcwd()  #Sets defaults path to project directory
-
+mode = 0
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('Beginning VMaNGOS setup')
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Dependency checks
+
+#Check if OS is 64bit
+if (platform.architecture()[0] != '64bit'):
+	print ("Operating system is not 64bit", platform.architecture()[0])
+	quit()
+
+#Check if Git version is 1.8.3+
+git_version = subprocess.run(["git","version"],encoding="utf-8",stdout=subprocess.PIPE,universal_newlines=True).stdout
+git_parse = re.findall('\d+',git_version)
+if (git_parse[0] < '1' and git_parse[1] < '8' and git_parse[2] < '3'):
+    print ("Git version is not 1.8.3+",git_version)
+    quit()
+		
+#Check if Python is 3.5.0+
+if (platform.python_version() <= "3.5.0"):
+	print ("\nERROR: Python version",platform.python_version(),"is not 3.5+")
+	quit()
+
+#Check for docker version 18.06.0+
+docker_version = subprocess.run(["docker","version","--format","'{{.Server.Version}}'"],encoding="utf-8",stdout=subprocess.PIPE,universal_newlines=True).stdout
+docker_parse = re.findall('\d+',docker_version)
+if (docker_parse[0] < '18' and docker_parse[1] < '06' and docker_parse[2] < '00'):
+	print("Docker engine is older than 18.06.00",docker_version)
+
+#Check for docker-compose version 1.22.0+
+compose_version = subprocess.run(["docker-compose","version","--short"],stdout=subprocess.PIPE,encoding="utf-8").stdout
+if (compose_version < "1.22.0"):
+	print("Docker Compose is older than 1.22.0",compose_version)
+	quit()
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Mode prompt
-while True:
-    try:
-        mode = int(input('\nSelect mode\nmode 0: website\nmode 1: no website\nmode 2: update\nmode 3: reset all files\nInput: '))
 
-        #modes:
-        #0. website
-        #1. no website
-        #2. update
-        #3. reset
+parser = argparse.ArgumentParser(description="Vmangos-Docker cli", formatter_class=RawTextHelpFormatter)
 
-        break
-    except KeyboardInterrupt:   #Exit program with keyboard interrupt
-        print('\n')
-        exit()
-    except TypeError:   #Error if not integer
-        print ('\nInput is invalid')
-        continue
+parser.add_argument("-m", help="Select mode\n\t0 = website(default)\n\t1 = no website\n\t3 = reset all files", default="0", type=int)
+parser.add_argument("--update", help="Use update mode", action="store_true")
+parser.add_argument("-t", help="Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram", default="2", type=int)
+parser.add_argument("-u", help="Use user:group 1000:1000(default) ", default="1000:1000", type=str)
+parser.add_argument("-c", default = "5875",
+    help="Input Client version to compile\n"
+       "\t4222 = 1.2.4\n"  
+       "\t4297 = 1.3.1\n"
+       "\t4375 = 1.4.2\n"
+       "\t4449 = 1.5.1\n"
+       "\t4544 = 1.6.1\n"
+       "\t4695 = 1.7.1\n"
+       "\t4878 = 1.8.4\n"
+       "\t5086 = 1.9.4\n"
+       "\t5302 = 1.10.2\n"
+       "\t5464 = 1.11.2\n"
+       "\t5875 = 1.12.1(default)\n"
+        ,type=int)
+parser.add_argument("-a", help="Enable anticheat\n\t0 = Disable Anticheat(default)\n\t1 = Enable Anticheat", default="1", type=int)
+parser.add_argument("--ccache", help="Clean CCache(exclusive)", action="store_true")
+parser.add_argument("--docker", help="Docker Clean(exclusive)", action="store_true")
+parser.add_argument("-v", help="Increase output verbosity", action="store_true")
 
-if(debug == 1):
-    print("debug> mode:",mode)
+args = parser.parse_args()
 
+#args.v
+if args.v:
+    debug = 1
+    print('debug> verbose mode on')
+else:
+    debug = 0
 
-if(mode == 2):
-    while True:
-        try:
-            update_mode = int(input('\nSelect mode\nmode 0: website\nmode 1: no website\nInput: '));
-            break
-        except KeyboardInterrupt:
-            print('\n')
-            exit()
-        except TypeError: 
-            print('\nInput is invalid')
-            continue
-    if(update_mode == 0):
-        compose = 'docker-compose.yml'
-
-    elif(update_mode == 1):
-        compose = 'noweb-docker-compose.yml'
-
-#Website mode
-if (mode == 0):
+#args.m
+if (args.m == 0):
+    mode = 0
     compose = 'docker-compose.yml'
-
-#No website mode
-elif (mode == 1):
+    if (args.update):
+        mode = 2
+elif (args.m == 1):
+    mode = 1
     compose = 'noweb-docker-compose.yml'
+    if (args.update):
+        mode = 2
+elif (args.m == 3):
+    mode = 3
+else:
+    print("Invalid mode")
+    quit()
 
-#Run if not reset mode
-if (mode != 3):
-
-    #User prompt
-    while True:
-        try:
-            user_input = int(input('\nUse user:group 1000:1000 for permissions\n0. Yes\n1. No\nInput: '))
-            break
-        except KeyboardInterrupt:   #Exit program with keyboard interrupt
-            print('\n')
-            exit()
-        except TypeError:   #Error if not integer
-            print ('\nInput is invalid')
-            continue
-    
-    if (user_input == 1):
-        user = input('\nInput user:group string for permissions')
-
-        if(debug == 1):
-            print('debug> user:group =',user)
-
-    #Threads prompt
-    while True:
-        try:
-            threads = int(input('\nInput number of threads to use for compiling\nRecommended values 1-2 for <4GB ram\nInput: '))
-            break
-        except KeyboardInterrupt:   #Exit program with keyboard interrupt
-            print('\n')
-            exit()
-        except TypeError:   #Error if not integer
-            print ('\nInput is invalid')
-            continue
-
+#args.t
+if args.t:
+    threads = args.t
     if(debug == 1):
-        print ('debug> threads:',threads)
+        print('debug> threads =', args.t)
 
-    #Client build prompt
-    while True:
-        try:
-            client = int(input('\nInput Client version to compile\n0.  Client Build 1.2.4  4222\n1.  Client Build 1.3.1  4297\n2.  Client Build 1.4.2  4375\n3.  Client Build 1.5.1  4449\n4.  Client Build 1.6.1  4544\n5.  Client Build 1.7.1  4695\n6.  Client Build 1.8.4  4878\n7.  Client Build 1.9.4  5086\n8.  Client Build 1.10.2 5302\n9.  Client Build 1.11.2 5464\n10. Client Build 1.12.1 5875(default)\n11. Custom\nInput: '))
-            break
-        except KeyboardInterrupt:   #Exit program with keyboard interrupt
-            print('\n')
-            exit()
-        except TypeError:   #Error if not integer
-            print ('\nInput is invalid')
-            continue
-
-    if (debug == 1):
-        print('debug> client',client)
-
-    #Matches input to appropriate client string
-    if(client == 0):
-        client_build = "4222"
-    elif(client == 1):
-        client_build = "4297"
-    elif(client == 2):
-        client_build = "4375"
-    elif(client == 3):
-        client_build = "4449"
-    elif(client == 4):
-        client_build = "4544"
-    elif(client == 5):
-        client_build = "4695"
-    elif(client == 6):
-        client_build = "4878"
-    elif(client == 7):
-        client_build = "5086"
-    elif(client == 8):
-        client_build = "5302"
-    elif(client == 9):
-        client_build = "5464"
-    elif(client == 10):
-        client_build = "5875"
-    elif(client == 11):
-        client_build = input('Input Client Builds separated by commas\nInput: ')
-
+#args.u
+if args.u:
+    user = args.u
     if(debug == 1):
-        print ("debug> client build:",client_build)
+        print('debug> user:group =', args.u)
 
-    #Anticheat prompt
-    while True:
-        try:
-            anticheat = int(input('\nEnable anticheat\n0. Disabled\n1. Enabled\nInput: '))
-            break
-        except KeyboardInterrupt:   #Exit program with keyboard interrupt
-            print('\n')
-            exit()
-        except TypeError:   #Error if not integer
-            print ('\nInput is invalid')
-            continue
+#args.c
+if (args.c == 4222):
+    client = 0
+    client_build = args.c
+elif (args.c == 4297):
+    client = 1
+    client_build = args.c
+elif (args.c == 4375):
+    client = 2
+    client_build = args.c
+elif (args.c == 4449):
+    client = 3
+    client_build = args.c
+elif (args.c == 4544):
+    client = 4
+    client_build = args.c
+elif (args.c == 4695):
+    client = 5
+    client_build = args.c
+elif (args.c == 4878):
+    client = 6
+    client_build = args.c
+elif (args.c == 5086):
+    client = 7
+    client_build = args.c
+elif (args.c == 5302):
+    client = 8
+    client_build = args.c
+elif (args.c == 5464):
+    client = 9
+    client_build = args.c
+elif (args.c == 5875):
+    client = 10
+    client_build = args.c
+else:
+    print("Client version is incorrect")
+    quit()
 
-    if (debug == 1):
-        print("\ndebug> anticheat:",anticheat)
+#args.a
+if args.a:
+    anticheat = args.a
+    if(debug == 1):
+        print('debug> anticheat =', args.a)
 
-    print('')
+#args.ccache-cleaner
+if args.ccache:
+    mode = 4
+    if(debug == 1):
+        print('debug> ccache cleaner =',args.ccache-cleaner)
+
+#args.docker-cleaner
+if args.docker:
+    mode = 5
+    if(debug == 1):
+        print('debug> docker cleaner =',args.docker-cleaner)
+
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def git_submodules():
     global debug    #Global debug variable
@@ -171,7 +186,7 @@ def git_submodules():
     if(debug == 1):
         #Displays git submodule status
         print("debug> git submodule status")
-        subprocess.run(['git','submodule','status'],check=True)                            #git submodule status
+        subprocess.run(['git','submodule','status'],check=True) #git submodule status
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def docker_build():
@@ -193,7 +208,7 @@ def docker_build():
                 '-v',os.path.join(path,'src/ccache:/ccache'),       #   -v $(pwd)/src/ccache:/ccache \
                 '-e','CCACHE_DIR=/ccache',                          #   -e CCACHE_DIR=/ccache \
                 '-e','threads=' + str(threads),                     #   -e threads=$(nprocs) \
-                '-e','CLIENT=' + client_build,                      #   -e CLIENT=5875 \
+                '-e','CLIENT=' + str(client_build),                      #   -e CLIENT=5875 \
                 '-e','ANTICHEAT=' + str(anticheat),                 #   -e ANTICHEAT=0 \
                 '--rm',                                             #   --rm \
                 'vmangos_build'],                                   #   vmangos_build
@@ -211,16 +226,13 @@ def docker_build():
             file.close()
 
     #Adjusts filepath in docker-compose depending on client version
-    if (client != 10 and client != 11):
+    if (client_build != 5875):
         with fileinput.FileInput(compose, inplace=True) as file:
             for line in file:
                 print(line.replace('./src/data/5875','./src/data/' + str(client_build) + ':ro'),end='')
         with fileinput.FileInput('config/mangosd.conf',inplace=True) as file: 
             for line in file:
                 print(line.replace('WowPatch = 10','WowPatch = ' + str(client)),end='')
-    elif (client == 11):
-        print("\nYou have chosen custom client build therefore script will terminate\nPlease edit docker-compose.yml file manually and set vmangos_mangos path accordingly\nExiting")
-        exit()
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def setup():
@@ -297,38 +309,7 @@ def update():
 
     #Run docker system prune
     subprocess.run(['docker','ps'],check=True)
-    while True:
-       try:
-           prune = int(input("\nDo you want to run docker system prune\nMake sure that all containers are up before running\n0. Yes\n1. No\nInput: "))
-           break
-       except KeyboardInterrupt:   #Exit program with keyboard interrupt
-           print('\n')
-           exit()
-       except TypeError:   #Error if not integer
-           print ('\nInput is invalid')
-           continue
-
-    if (prune == 0):
-        subprocess.run(['docker','system','prune'],check=True)
     
-    #Ccache clean
-    ccache_size = subprocess.run(['du','-sh','src/ccache'],stdout=subprocess.PIPE)
-    print ('Ccache size:', ccache_size.stdout.decode('utf-8').strip())
-    
-    while True:
-       try:
-           cache = int(input("\nDo you want to clear ccache\n0. Yes\n1. No\nInput: "))
-           break
-       except KeyboardInterrupt:   #Exit program with keyboard interrupt
-           print('\n')
-           exit()
-       except TypeError:   #Error if not integer
-           print ('\nInput is invalid')
-           continue
-
-    if (cache == 0):
-        os.remove('src/ccache') #rm -rf src/ccache
-
     print ("\nExiting")
     exit()              #exits program
 
@@ -347,6 +328,19 @@ def reset():
     if (debug == 1):
         print ("\nExiting")
     exit()  #exists program
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Ccache clean
+def ccache_clean():
+    ccache_size = subprocess.run(['du','-sh','src/ccache'],stdout=subprocess.PIPE,encoding="utf-8")
+    print ('Ccache size:', ccache_size.stdout.strip())
+    shutil.rmtree('src/ccache') #rm -rf src/ccache
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Docker clean
+def docker_clean():
+    subprocess.run(['docker','system','prune'],check=True)
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Mode declarations
 
@@ -369,3 +363,11 @@ elif (mode == 2):
 #Mode 3: reset
 elif (mode == 3):
     reset()
+
+#Mode 4: ccache_clean
+elif (mode == 4):
+    ccache_clean()
+
+#Mode 5: docker_clean
+elif (mode == 5):
+    docker_clean()

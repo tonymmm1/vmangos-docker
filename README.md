@@ -1,4 +1,4 @@
-<h1>Release: 0.4.1</h1>
+<h1>Release: 0.5.0</h1>
 
 This is a project that is based on the VMaNGOS core running on Docker. 
 
@@ -23,17 +23,17 @@ vim /docker/build/Dockerfile
 <h2>Step 1:</h2>
 <h3>Requirements:</h3>
 
-* Git installed
+* [Git 1.8.3+ installed](https://git-scm.com/)
 
-* Docker-CE installed
+* [Docker-CE 18.06.00+ installed](https://docs.docker.com/get-docker/)
 
-* Docker Compose 1.22.0+ installed
+* [Docker Compose 1.22.0+ installed](https://docs.docker.com/compose/install/)
 
-* Operating System that is 64 bit (Currently Raspbian is only 32bit)
+* [Operating System that is 64 bit](https://en.wikipedia.org/wiki/64-bit_computing)[Currently Raspbian is only 64bit beta](https://www.raspberrypi.org/blog/latest-raspberry-pi-os-update-may-2020/)
 
-* Python 3.5+ installed
+* [Python 3.5+ installed](https://www.python.org/downloads/)
 
-* Tmux(recommended for docker attach)
+* [Tmux(recommended for docker attach)](https://github.com/tmux/tmux/wiki/Getting-Started)
 
 <h2>Step 2:</h2>
 <h3> a.) Place dependencies as listed below:</h3> 
@@ -56,11 +56,17 @@ vim /docker/build/Dockerfile
 * Website config: 	/web
 
 <h2>Step 3:</h2>
-<h3>a). Run setup.py for creating containers and for managing this project.</h3>
+<h3>a). Run setup.py for creating containers and for managing this project.Default flags are already applied and a help menu can be shown.</h3>
   
 ```
 chmod +x 
-./setup.py
+./setup.py 
+```
+
+Help menu:
+
+```
+./setup.py -h
 ```
 
 <h3>b). Configure realm ip address</h3>
@@ -70,14 +76,75 @@ Use mysql-workbench or from the vmangos_database container edit the ip address c
 <h3> a). Website file configuration</h3>
 
 Make sure to edit /web/site.conf and change the server_name
+
 ```
 vim web/site.conf
 server_name ${FQDN};
 ```
+
 <h3> b). Website installation</h3>
 
 1. Visit http://${FQDN}/install
 2. Proceed with installation steps 
+
+<h2>Step 5: Maintenence</h2>
+<h3> a). Updating all repos</h3>
+
+```
+./setup.py -m 0 --update
+```
+
+<h3> b). Cleaning CCache</h3>
+
+```
+./setup.py --ccache
+```
+
+<h3> c). Cleaning unused Docker Containers</h3>
+
+```
+./setup.py --docker
+```
+
+<h2> Command line options:</h2>
+
+```
+Vmangos-Docker cli
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -m M        Select mode
+              	0 = website(default)
+              	1 = no website
+              	3 = reset all files
+  --update    Use update mode
+  -t T        Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram
+  -u U        Use user:group 1000:1000(default) 
+  -c C        Input Client version to compile
+              	4222 = 1.2.4
+              	4297 = 1.3.1
+              	4375 = 1.4.2
+              	4449 = 1.5.1
+              	4544 = 1.6.1
+              	4695 = 1.7.1
+              	4878 = 1.8.4
+              	5086 = 1.9.4
+              	5302 = 1.10.2
+              	5464 = 1.11.2
+              	5875 = 1.12.1(default)
+  -a A        Enable anticheat
+              	0 = Disable Anticheat(default)
+              	1 = Enable Anticheat
+  --ccache    Clean CCache(exclusive)
+  --docker    Docker Clean(exclusive)
+  -v          Increase output verbosity
+```
+
+Example command config
+
+```
+./setup.py -m 0 -t 2 -u 1000:1000 -c 5875 -a 0 
+```
 
 <h2>List of Commands:</h2>
 <h3>General commands(All docker-compose commands must be run from within the project directory)</h3>
