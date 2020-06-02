@@ -1,0 +1,20 @@
+#Travis job summary:
+arch: 
+  - amd64
+
+dist: bionic
+
+services: 
+  - docker
+
+setup:
+  - chmod +x setup.py
+
+scripts: | -
+  ./setup.py -m 1 -t 2 
+  sleep 180
+  docker-compose ps
+  docker-compose logs vmangos_database
+  docker-compose logs vmangos_realmd
+  docker-compose logs vmangos_mangos
+
