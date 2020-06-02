@@ -7,8 +7,12 @@ dist: bionic
 services: 
   - docker
 
-setup:
+before_install:
   - chmod +x setup.py
+
+addons:
+  apt:
+    update: true
 
 scripts: | -
   ./setup.py -m 1 -t 2 
