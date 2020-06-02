@@ -67,7 +67,6 @@ services:
       - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
       - ./web/site.conf:/etc/nginx/conf.d/site.conf   #nginx conf
       - /etc/localtime:/etc/localtime:ro              #host time
-      - /etc/timezone:/etc/timezone:ro                #host timezone
     depends_on:
       - vmangos_web_php
       - vmangos_database
@@ -84,7 +83,6 @@ services:
       - ./src/fusiongen:/var/www/fusiongen            #fusiongen src
       - ./web/php.ini:/usr/local/etc/php/php.ini:ro   #php conf
       - /etc/localtime:/etc/localtime:ro              #host time
-      - /etc/timezone:/etc/timezone:ro                #host timezone
     depends_on:
       - vmangos_database
     restart: always
