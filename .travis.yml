@@ -1,4 +1,5 @@
 #Travis job summary:
+language: python
 arch: 
   - amd64
 
@@ -7,7 +8,7 @@ dist: bionic
 services: 
   - docker
 
-before_install:
+before_script:
   - chmod +x setup.py
 
 addons:
