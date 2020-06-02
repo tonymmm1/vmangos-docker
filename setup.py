@@ -60,7 +60,7 @@ if (compose_version < "1.22.0"):
 parser = argparse.ArgumentParser(description="Vmangos-Docker cli", formatter_class=RawTextHelpFormatter)
 
 parser.add_argument("-m", help="Select mode\n\t0 = website(default)\n\t1 = no website\n\t3 = reset all files", default="0", type=int)
-parser.add_argument("--update", help="Use update mode", default="0", action="store_true")
+parser.add_argument("--update", help="Use update mode", action="store_true")
 parser.add_argument("-t", help="Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram", default="2", type=int)
 parser.add_argument("-u", help="Use user:group 1000:1000(default) ", default="1000:1000", type=str)
 parser.add_argument("-c", default = "5875",
