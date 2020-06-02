@@ -15,7 +15,7 @@ addons:
   apt:
     update: true
 
-scripts: | -
+scripts: |-
   ./setup.py -m 1 -t 2 
   sleep 180
   docker-compose ps
