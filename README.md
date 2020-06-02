@@ -31,7 +31,7 @@ vim /docker/build/Dockerfile
 
 * [Operating System that is 64 bit](https://en.wikipedia.org/wiki/64-bit_computing)[Currently Raspbian is only 64bit beta](https://www.raspberrypi.org/blog/latest-raspberry-pi-os-update-may-2020/)
 
-* Python 3.5+ installed
+* [Python 3.5+ installed](https://www.python.org/downloads/)
 
 * [Tmux(recommended for docker attach)](https://github.com/tmux/tmux/wiki/Getting-Started)
 
