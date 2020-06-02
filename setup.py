@@ -117,6 +117,7 @@ if args.t:
 #args.u
 if args.u:
     user = args.u
+    user_input = 1
     if(debug == 1):
         print('debug> user:group =', args.u)
 
