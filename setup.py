@@ -18,7 +18,9 @@ from argparse import RawTextHelpFormatter
 #Variable declaration
 debug = 0           #Debug toggle: 0. Disable,1. Enable
 path = os.getcwd()  #Sets defaults path to project directory
-mode = 0
+mode = 0            #Mode variable
+user_input = 0      #User input variable
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('Beginning VMaNGOS setup')
 
@@ -62,7 +64,7 @@ parser = argparse.ArgumentParser(description="Vmangos-Docker cli", formatter_cla
 parser.add_argument("-m", help="Select mode\n\t0 = website(default)\n\t1 = no website\n\t3 = reset all files", default="0", type=int)
 parser.add_argument("--update", help="Use update mode", action="store_true")
 parser.add_argument("-t", help="Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram", default="2", type=int)
-parser.add_argument("-u", help="Use user:group 1000:1000(default) ", default="1000:1000", type=str)
+parser.add_argument("-u", help="Requires running with sudo, Use user:group 1000:1000(default)", default="1000:1000", type=str)
 parser.add_argument("-c", default = "5875",
     help="Input Client version to compile\n"
        "\t4222 = 1.2.4\n"  
@@ -115,11 +117,15 @@ if args.t:
         print('debug> threads =', args.t)
 
 #args.u
-if args.u:
+if (args.u == "1000:1000"):
+    user = args.u
+    if(debug == 1):
+        print('debug> user:group =', args.u)
+else:
     user = args.u
     user_input = 1
     if(debug == 1):
-        print('debug> user:group =', args.u)
+        print('debub> user:group =', args.u)
 
 #args.c
 if (args.c == 4222):

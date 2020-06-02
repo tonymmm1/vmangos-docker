@@ -119,7 +119,7 @@ optional arguments:
               	3 = reset all files
   --update    Use update mode
   -t T        Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram
-  -u U        Use user:group 1000:1000(default) 
+  -u U        Requires running with sudo, Use user:group 1000:1000(default)
   -c C        Input Client version to compile
               	4222 = 1.2.4
               	4297 = 1.3.1
