@@ -30,11 +30,11 @@ if (platform.architecture()[0] != '64bit'):
 	print ("Operating system is not 64bit", platform.architecture()[0])
 	quit()
 
-#Check if Git version is 2.11.2+
+#Check if Git version is 1.8.3+
 git_version = subprocess.run(["git","version"],encoding="utf-8",stdout=subprocess.PIPE,universal_newlines=True).stdout
 git_parse = re.findall('\d+',git_version)
-if (git[0] < '2' and git[1] < '11' and git[2] < '0'):
-    print ("Git version is not 2.11.2+",git_version)
+if (git_parse[0] < '1' and git_parse[1] < '8' and git_parse[2] < '3'):
+    print ("Git version is not 1.8.3+",git_version)
     quit()
 		
 #Check if Python is 3.5.0+
@@ -208,7 +208,7 @@ def docker_build():
                 '-v',os.path.join(path,'src/ccache:/ccache'),       #   -v $(pwd)/src/ccache:/ccache \
                 '-e','CCACHE_DIR=/ccache',                          #   -e CCACHE_DIR=/ccache \
                 '-e','threads=' + str(threads),                     #   -e threads=$(nprocs) \
-                '-e','CLIENT=' + client_build,                      #   -e CLIENT=5875 \
+                '-e','CLIENT=' + str(client_build),                      #   -e CLIENT=5875 \
                 '-e','ANTICHEAT=' + str(anticheat),                 #   -e ANTICHEAT=0 \
                 '--rm',                                             #   --rm \
                 'vmangos_build'],                                   #   vmangos_build

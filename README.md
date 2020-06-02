@@ -23,7 +23,7 @@ vim /docker/build/Dockerfile
 <h2>Step 1:</h2>
 <h3>Requirements:</h3>
 
-* [Git 2.11.0+ installed](https://git-scm.com/)
+* [Git 1.8.3+ installed](https://git-scm.com/)
 
 * [Docker-CE 18.06.00+ installed](https://docs.docker.com/get-docker/)
 
