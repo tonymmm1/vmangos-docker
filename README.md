@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/tonymmm1/vmangos-docker.svg?branch=master)](https://travis-ci.org/tonymmm1/vmangos-docker)
 <h1>Release: 0.5.0</h1>
 
 This is a project that is based on the VMaNGOS core running on Docker. 
