@@ -18,15 +18,16 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 
 ### Requirements:
 
-* [Git 1.8.3+ installed](https://git-scm.com/)
+* [Git 1.8.3+](https://git-scm.com/)
 
-* [Docker-CE 18.06.00+ installed](https://docs.docker.com/get-docker/)
+* [Docker-CE 18.06.00+](https://docs.docker.com/get-docker/)
 
-* [Docker Compose 1.22.0+ installed](https://docs.docker.com/compose/install/)
+* [Docker Compose 1.22.0+](https://docs.docker.com/compose/install/)
 
-* [Operating System that is 64 bit](https://en.wikipedia.org/wiki/64-bit_computing)[Currently Raspbian is only 64bit beta](https://www.raspberrypi.org/blog/latest-raspberry-pi-os-update-may-2020/)
+* [Operating System is 64 bit](https://en.wikipedia.org/wiki/64-bit_computing)
+    ([Currently Raspbian is only 64bit beta](https://www.raspberrypi.org/blog/latest-raspberry-pi-os-update-may-2020/))
 
-* [Python 3.5+ installed](https://www.python.org/downloads/)
+* [Python 3.5+](https://www.python.org/downloads/)
 
 * [Tmux(recommended for docker attach)](https://github.com/tmux/tmux/wiki/Getting-Started)
 
@@ -51,7 +52,7 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * Website config: 	/web
 
 ### Step 2:
-#### a). Run setup.py for creating containers and for managing this project.Default flags are already applied and a help menu can be shown.
+#### a). Run setup.py for creating containers and for managing this project. Default flags are already applied and a help menu can be shown.
   
 ```
 chmod +x 
