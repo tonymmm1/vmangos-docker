@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/tonymmm1/vmangos-docker.svg?branch=master)](https://travis-ci.org/tonymmm1/vmangos-docker)
-<h1>Release: 0.5.0</h1>
+# vmangos-docker
+
+## Release: 0.5.0
 
 This is a project that is based on the VMaNGOS core running on Docker. 
 
@@ -10,12 +12,11 @@ Website code from https://github.com/FusionGen/FusionGen.
 The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
 Changing the exposed port for mysql should also be considered if not removing it all together. Website functionality will be configured with a separate function within setup.sh.
 
-<h2>Arm Notice:</h2>
+### Arm Notice:
 
 Make sure operating system is 64bit and that thread count should be 2 for <= 4GB ram.
 
-<h2>Step 1:</h2>
-<h3>Requirements:</h3>
+### Requirements:
 
 * [Git 1.8.3+ installed](https://git-scm.com/)
 
@@ -29,8 +30,8 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 
 * [Tmux(recommended for docker attach)](https://github.com/tmux/tmux/wiki/Getting-Started)
 
-<h2>Step 2:</h2>
-<h3> a.) Place dependencies as listed below:</h3> 
+### Step 1:
+#### a.) Place dependencies as listed below:
 
 * /src/data 
 * /src/data/maps
@@ -40,7 +41,7 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * /src/data/5875/dbc
 * /src/ccache
 
-<h3>b.) Configuration Files:(*)</h3>
+#### b.) Configuration Files:(*)
 
 * Server config: 	/config
 * Database config: 	/env/db.env
@@ -49,8 +50,8 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * Database volume: 	/var/lib/docker/volumes/vmangos_database
 * Website config: 	/web
 
-<h2>Step 3:</h2>
-<h3>a). Run setup.py for creating containers and for managing this project.Default flags are already applied and a help menu can be shown.</h3>
+### Step 2:
+#### a). Run setup.py for creating containers and for managing this project.Default flags are already applied and a help menu can be shown.
   
 ```
 chmod +x 
@@ -63,11 +64,11 @@ Help menu:
 ./setup.py -h
 ```
 
-<h3>b). Configure realm ip address</h3>
+#### b). Configure realm ip address
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
-<h2>Step 4:</h2>
-<h3> a). Website file configuration</h3>
+### Step 3:
+#### a). Website file configuration
 
 Make sure to edit /web/site.conf and change the server_name
 
@@ -76,31 +77,31 @@ vim web/site.conf
 server_name ${FQDN};
 ```
 
-<h3> b). Website installation</h3>
+#### b). Website installation
 
 1. Visit http://${FQDN}/install
 2. Proceed with installation steps 
 
-<h2>Step 5: Maintenence</h2>
-<h3> a). Updating all repos</h3>
+### Step 4: Maintenence
+#### a). Updating all repos
 
 ```
 ./setup.py -m 0 --update
 ```
 
-<h3> b). Cleaning CCache</h3>
+#### b). Cleaning CCache
 
 ```
 ./setup.py --ccache
 ```
 
-<h3> c). Cleaning unused Docker Containers</h3>
+#### c). Cleaning unused Docker Containers
 
 ```
 ./setup.py --docker
 ```
 
-<h2> Command line options:</h2>
+### Command line options:
 
 ```
 Vmangos-Docker cli
@@ -140,8 +141,8 @@ Example command config
 ./setup.py -m 0 -t 2 -u 1000:1000 -c 5875 -a 0 
 ```
 
-<h2>List of Commands:</h2>
-<h3>General commands(All docker-compose commands must be run from within the project directory)</h3>
+### List of Commands:
+#### General commands(All docker-compose commands must be run from within the project directory)
 
 For non-website configs make sure to replace docker-compose with docker-compose -f noweb-docker-compose.yml
 
