@@ -8,7 +8,6 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./db/my.cnf:/etc/mysql/my.cnf:ro          #mysql config
       - vmangos_database:/var/lib/mysql           #vmangos_database volume
       - ./src/core/sql:/opt/vmangos/sql           #vmangos src
       - ./src/database:/opt/vmangos/sql/database  #vmangos src
