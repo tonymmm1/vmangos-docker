@@ -1,7 +1,7 @@
 FROM mariadb:latest
 
 RUN apt-get update -y && apt-get install -y \
-	mysql-client \
+	mariadb-client \
 	libmysqlclient-dev \
 	libssl-dev \
 	openssl \
