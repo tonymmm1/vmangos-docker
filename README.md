@@ -41,11 +41,10 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * /src/data/5875(adjust according to patch release)
 * /src/data/5875/dbc
 
-#### b.) Configuration Files:(*)
+#### b.) Configuration Files:
 
 * Server config: 	/config
 * Database config: 	/env/db.env
-* Database config: 	/db/my.cnf
 * VMaNGOS: 		/vmangos
 * Database volume: 	/var/lib/docker/volumes/vmangos_database
 * Website config: 	/web
