@@ -40,7 +40,6 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * /src/data/vmaps
 * /src/data/5875(adjust according to patch release)
 * /src/data/5875/dbc
-* /src/ccache
 
 #### b.) Configuration Files:(*)
 
@@ -50,6 +49,7 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * VMaNGOS: 		/vmangos
 * Database volume: 	/var/lib/docker/volumes/vmangos_database
 * Website config: 	/web
+* CCache:		/src/ccache
 
 ### Step 2:
 #### a). Run setup.py for creating containers and for managing this project. Default flags are already applied and a help menu can be shown.
