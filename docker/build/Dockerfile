@@ -25,7 +25,7 @@ COPY /src/core/ /opt/core
 
 ENV vmangos_src /opt/core
 ENV vmangos /opt/vmangos
-ENV world world_full_05_october_2019
+ENV world world_full_12_november_2020
 
 #Compile Variables
 #--------------------------------------------------------
