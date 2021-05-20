@@ -61,7 +61,7 @@ if (compose_version < "1.22.0"):
 
 parser = argparse.ArgumentParser(description="Vmangos-Docker cli", formatter_class=RawTextHelpFormatter)
 
-parser.add_argument("-m", help="Select mode\n\t0 = website(default)\n\t1 = no website\n\t3 = reset all files", default="0", type=int)
+parser.add_argument("-m", help="Select mode\n\t0 = website(default)\n\t3 = reset all files", default="0", type=int)
 parser.add_argument("--update", help="Use update mode", action="store_true")
 parser.add_argument("-t", help="Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram", default="2", type=int)
 parser.add_argument("-u", help="Requires running with sudo, Use user:group 1000:1000(default)", default="1000:1000", type=str)
@@ -96,12 +96,6 @@ else:
 #args.m
 if (args.m == 0):
     mode = 0
-    compose = 'docker-compose.yml'
-    if (args.update):
-        mode = 2
-elif (args.m == 1):
-    mode = 1
-    compose = 'noweb-docker-compose.yml'
     if (args.update):
         mode = 2
 elif (args.m == 3):
@@ -266,11 +260,11 @@ def setup():
     os.chdir(path)                              #cd path 
 
     #Starts database container in the background
-    subprocess.run(['docker-compose','-f',compose,'up','-d'])   #docker-compose -f docker-compose.yml up -d
+    subprocess.run(['docker-compose','up','-d'])   #docker-compose -f docker-compose.yml up -d
 
     print("\nSetup is complete\n\nPlease wait a few minutes while database is being built\n")
 
-    subprocess.run(['docker-compose','-f',compose,'ps'])    #docker-compose -f docker-compose.yml/noweb-docker-compose.yml ps
+    subprocess.run(['docker-compose','ps'])    #docker-compose -f docker-compose.yml/noweb-docker-compose.yml ps
 
     exit()
 
@@ -283,7 +277,7 @@ def update():
     print ('Beginning updates')
 
     #destroys all containers without harming volumes
-    subprocess.run(['docker-compose','-f',compose,'down'])   #docker-compose -f docker-compose.yml/noweb-docker-compose.yml down
+    subprocess.run(['docker-compose','down'])   #docker-compose -f docker-compose.yml/noweb-docker-compose.yml down
 
     subprocess.run(['git','pull'],check=True)      #git pull
     subprocess.run(['git','status'],check=True)    #git status
@@ -297,22 +291,22 @@ def update():
     os.chdir(path)                                  #cd path 
 
     #Builds new containers without cached image layers
-    subprocess.run(['docker-compose','-f',compose,'build'])    #docker-compose build --no-cache
+    subprocess.run(['docker-compose','build'])    #docker-compose build --no-cache
 
     #Builds vmangos_database
-    subprocess.run(['docker-compose','-f',compose,'up','-d','vmangos_database']) #docker-compose up -d vmangos_database
+    subprocess.run(['docker-compose','up','-d','vmangos_database']) #docker-compose up -d vmangos_database
 
     time.sleep(30)
 
     print('Updating mangos database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'
-    subprocess.run("docker-compose" + " -f " + compose + " exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'",shell=True)
+    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql'",shell=True)
 
     print('Updating characters database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'
-    subprocess.run("docker-compose" + " -f " + compose + " exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True) 
+    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True) 
     #rebuilds containers with any new changes
-    subprocess.run(['docker-compose','-f',compose,'up','-d'])    #docker-compose up -d
+    subprocess.run(['docker-compose','up','-d'])    #docker-compose up -d
 
     #Run docker system prune
     subprocess.run(['docker','ps'],check=True)
@@ -351,14 +345,8 @@ def docker_clean():
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Mode declarations
 
-#Modes 0: website
+#Mode 1: setup 
 if (mode == 0):
-    git_submodules()
-    docker_build()
-    setup()
-
-#Mode 1: no-website
-if (mode == 1):
     git_submodules()
     docker_build()
     setup()
