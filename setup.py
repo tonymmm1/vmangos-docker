@@ -61,7 +61,7 @@ if (compose_version < "1.22.0"):
 
 parser = argparse.ArgumentParser(description="Vmangos-Docker cli", formatter_class=RawTextHelpFormatter)
 
-parser.add_argument("-m", help="Select mode\n\t0 = website(default)\n\t3 = reset all files", default="0", type=int)
+parser.add_argument("-m", help="Select mode\n\t0 = default(default)\n\t3 = reset all files", default="0", type=int)
 parser.add_argument("--update", help="Use update mode", action="store_true")
 parser.add_argument("-t", help="Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram", default="2", type=int)
 parser.add_argument("-u", help="Requires running with sudo, Use user:group 1000:1000(default)", default="1000:1000", type=str)
@@ -350,7 +350,7 @@ def docker_clean():
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Mode declarations
 
-#Mode 1: setup 
+#Mode 1: default 
 if (mode == 0):
     git_submodules()
     docker_build()

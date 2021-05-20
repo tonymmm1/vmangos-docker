@@ -7,8 +7,6 @@ This is a project that is based on the VMaNGOS core running on Docker.
 
 Source code from https://github.com/vmangos/core.
 
-Website code from https://github.com/FusionGen/FusionGen.
-
 The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
 Changing the exposed port for mysql should also be considered if not removing it all together. Website functionality will be configured with a separate function within setup.sh.
 
@@ -47,7 +45,6 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * Database config: 	/env/db.env
 * VMaNGOS: 		/vmangos
 * Database volume: 	/var/lib/docker/volumes/vmangos_database
-* Website config: 	/web
 * CCache:		/src/ccache
 
 ### Step 2:
@@ -67,22 +64,7 @@ Help menu:
 #### b). Configure realm ip address
 Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
 
-### Step 3:
-#### a). Website file configuration
-
-Make sure to edit /web/site.conf and change the server_name
-
-```
-vim web/site.conf
-server_name ${FQDN};
-```
-
-#### b). Website installation
-
-1. Visit http://${FQDN}/install
-2. Proceed with installation steps 
-
-### Step 4: Maintenence
+### Step 3: Maintenence
 #### a). Updating all repos
 
 ```
@@ -109,8 +91,7 @@ Vmangos-Docker cli
 optional arguments:
   -h, --help  show this help message and exit
   -m M        Select mode
-              	0 = website(default)
-              	1 = no website
+              	0 = default (default)
               	3 = reset all files
   --update    Use update mode
   -t T        Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram
@@ -143,8 +124,6 @@ Example command config
 
 ### List of Commands:
 #### General commands(All docker-compose commands must be run from within the project directory)
-
-For non-website configs make sure to replace docker-compose with docker-compose -f noweb-docker-compose.yml
 
 ```
 docker-compose up (Creates and runs containers with console output)
