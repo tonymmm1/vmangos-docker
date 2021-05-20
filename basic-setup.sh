@@ -1,7 +1,7 @@
 #!/bin/bash
 #Basic script that builds only non-web version of project
 
-echo "Basic script that builds only non-web version of project"
+echo "Basic script that builds this project"
 
 path=$(pwd)
 
@@ -23,7 +23,7 @@ chmod +x merge.sh
 ./merge.sh
 cd $path
 
-docker-compose -f noweb-docker-compose.yml up -d
+docker-compose up -d
 
 echo "Please wait a few minutes while database is being built"
 
