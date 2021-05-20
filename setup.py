@@ -305,6 +305,11 @@ def update():
     print('Updating characters database')
     #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'
     subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql'",shell=True) 
+
+    print('Updating realmd database')
+    #docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD realmd < /opt/vmangos/sql/migrations/logon_db_updates.sql'
+    subprocess.run("docker-compose exec vmangos_database sh -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD realmd < /opt/vmangos/sql/migrations/logon_db_updates.sql'",shell=True) 
+
     #rebuilds containers with any new changes
     subprocess.run(['docker-compose','up','-d'])    #docker-compose up -d
 
