@@ -6,7 +6,3 @@
 	path = src/database
 	url = https://github.com/brotalnia/database
 	branch = master
-[submodule "src/fusiongen"]
-	path = src/fusiongen
-	url = https://github.com/FusionGen/FusionGen
-	branch = master
