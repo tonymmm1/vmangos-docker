@@ -10,4 +10,4 @@ grant all on realmd.* to mangos@'localhost' with grant option;
 grant all on characters.* to mangos@'localhost' with grant option;
 grant all on mangos.* to mangos@'localhost' with grant option;
 grant all on logs.* to mangos@'localhost' with grant option;
-
+flush privileges;
