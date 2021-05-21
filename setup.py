@@ -215,17 +215,6 @@ def docker_build():
                 'vmangos_build'],                                   #   vmangos_build
                 )
          
-    #Web
-    if(mode == 0):
-        with open(path + '/docker/database/generate-db-1.sql',"a+") as file:
-            #Creates user and database for website
-            file.write("CREATE DATABASE fusiongen;\n")
-            file.write("create user 'fusiongen'@'localhost' identified by 'fusiongen';\n")
-            file.write("SET PASSWORD FOR 'fusiongen'@'localhost' = PASSWORD('fusiongen');\n")
-            file.write("grant all on fusiongen.* to fusiongen@'localhost' with grant option;\n")
-            file.write("flush privileges;")
-            file.close()
-
     #Adjusts filepath in docker-compose depending on client version
     if (client_build != 5875):
         with fileinput.FileInput(compose, inplace=True) as file:
