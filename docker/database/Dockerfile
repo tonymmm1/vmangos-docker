@@ -9,7 +9,7 @@ RUN apt-get update -y && apt-get install -y \
 	libcurl4-openssl-dev \
 	p7zip-full
 
-ENV world world_full_12_november_2020
+ENV world world_full_14_june_2021
 
 COPY docker/database/generate-db-1.sql /docker-entrypoint-initdb.d
 COPY docker/database/generate-db-2.sh /docker-entrypoint-initdb.d
