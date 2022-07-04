@@ -85,13 +85,17 @@ Use mysql-workbench or from the vmangos_database container edit the ip address c
 ### Command line options:
 
 ```
+usage: setup.py [-h] [-m M] [--update] [-t T] [-u U] [-c C] [-a A] [--ccache] [--docker] [-v]
+
 Vmangos-Docker cli
 
-optional arguments:
+options:
   -h, --help  show this help message and exit
   -m M        Select mode
-              	0 = default (default)
+              	0 = default(default)
               	3 = reset all files
+              	4 = ccache clean
+              	5 = Docker clean
   --update    Use update mode
   -t T        Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram
   -u U        Requires running with sudo, Use user:group 1000:1000(default)
@@ -113,7 +117,6 @@ optional arguments:
   --ccache    Clean CCache(exclusive)
   --docker    Docker Clean(exclusive)
   -v          Increase output verbosity
-```
 
 Example command config
 
