@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/tonymmm1/vmangos-docker.svg?branch=master)](https://travis-ci.org/tonymmm1/vmangos-docker)
 # vmangos-docker
 
 ## Release: 0.5.0
