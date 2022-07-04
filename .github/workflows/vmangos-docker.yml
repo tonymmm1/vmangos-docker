@@ -7,14 +7,15 @@ on:
       - 'README.md'
       - '.gitignore'
 jobs:
-  runs-on: ubuntu-20.04
-  steps:
-  - uses: actions/checkout@v2
-  - name: build stack
-    run: |
-      ./setup.py -t 2
-      sleep 180
-      docker-compose ps
-      docker-compose logs vmangos_database
-      docker-compose logs vmangos_realmd
-      docker-compose logs vmangos_mangos
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: build stack
+      run: |
+        ./setup.py -t 2
+        sleep 180
+        docker-compose ps
+        docker-compose logs vmangos_database
+        docker-compose logs vmangos_realmd
+        docker-compose logs vmangos_mangos
