@@ -1,0 +1,21 @@
+name: vmangos-docker CI build
+
+on: 
+  push:
+    paths-ignore:
+      - '.drone.yml'
+      - 'README.md'
+      - '.gitignore'
+jobs:
+  build:
+    os: [ubuntu-20.04]
+  steps:
+  - uses: actions/checkout@v2
+  - name: build stack
+    run: |
+      ./setup.py -t 2
+      sleep 180
+      docker-compose ps
+      docker-compose logs vmangos_database
+      docker-compose logs vmangos_realmd
+      docker-compose logs vmangos_mangos
