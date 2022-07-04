@@ -3,17 +3,17 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && apt-get install -y \
 	build-essential \ 
-	git \
+	ccache \
 	cmake \
-	libtbb-dev \
-	openssl \
-	libssl-dev \
+	git \
 	libace-dev \
-	p7zip-full \ 
-	zlib1g-dev \
 	libcurl4-openssl-dev \
-	libmysqlclient-dev \ 
-	ccache 
+	libtbb-dev \
+	libmysqlclient-dev \
+	libssl-dev \
+	openssl \
+	p7zip-full \
+	zlib1g-dev
 		
 RUN ln -s /usr/bin/ccache /usr/local/bin/gcc \ 
 	&& ln -s /usr/bin/ccache /usr/local/bin/g++ \
@@ -32,9 +32,6 @@ ENV world world_full_14_june_2021
 #--------------------------------------------------------
 #Compile threads
 ENV threads 2
-
-#Debug mode
-ENV DEBUG 0
 
 #0. TBB, 1. malloc
 ENV MALLOC 0
@@ -68,7 +65,6 @@ ENV LIBCURL 0
 
 CMD mkdir $vmangos_src/build && cd $vmangos_src/build && \
 	cmake \
-	-DDEBUG=$DEBUG \
 	-DUSE_STD_MALLOC=$MALLOC \
 	-DSUPPORTED_CLIENT_BUILD=$CLIENT \
 	-DUSE_EXTRACTORS=$EXTRACTORS \
