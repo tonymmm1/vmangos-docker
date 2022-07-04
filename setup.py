@@ -10,6 +10,7 @@ import platform
 import re
 import shutil
 import subprocess
+import sys
 import time
 
 from argparse import RawTextHelpFormatter
@@ -40,7 +41,7 @@ if (git_parse[0] < '1' and git_parse[1] < '8' and git_parse[2] < '3'):
     quit()
 		
 #Check if Python is 3.5.0+
-if (platform.python_version() <= "3.5.0"):
+if (sys.version_info.major < 3 and sys.version_info.minor < 5):
 	print ("\nERROR: Python version",platform.python_version(),"is not 3.5+")
 	quit()
 
