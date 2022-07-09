@@ -20,7 +20,6 @@ from argparse import RawTextHelpFormatter
 debug = 0           #Debug toggle: 0. Disable,1. Enable
 path = os.getcwd()  #Sets defaults path to project directory
 mode = 0            #Mode variable
-user_input = 0      #User input variable
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('Beginning VMaNGOS setup')
@@ -65,7 +64,6 @@ parser = argparse.ArgumentParser(description="Vmangos-Docker cli", formatter_cla
 parser.add_argument("-m", help="Select mode\n\t0 = default(default)\n\t3 = reset all files\n\t4 = ccache clean\n\t5 = Docker clean", default="0", type=int)
 parser.add_argument("--update", help="Use update mode", action="store_true")
 parser.add_argument("-t", help="Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram", default="2", type=int)
-parser.add_argument("-u", help="Requires running with sudo, Use user:group 1000:1000(default)", default="1000:1000", type=str)
 parser.add_argument("-c", default = "5875",
     help="Input Client version to compile\n"
        "\t4222 = 1.2.4\n"  
@@ -110,17 +108,6 @@ if args.t:
     threads = args.t
     if(debug == 1):
         print('debug> threads =', args.t)
-
-#args.u
-if (args.u == "1000:1000"):
-    user = args.u
-    if(debug == 1):
-        print('debug> user:group =', args.u)
-else:
-    user = args.u
-    user_input = 1
-    if(debug == 1):
-        print('debub> user:group =', args.u)
 
 #args.c
 if (args.c == 4222):
@@ -228,21 +215,11 @@ def docker_build():
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def setup():
     global debug        #Global debug variable
-    global user         #Global user variable
-    global user_input   #Global user_input variable
     global mode         #Global mode variable
     global compose      #Global compose variable
     
     print("Beginning setup")
 
-    if (user_input == 1):
-        #Setting permissions 
-        with fileinput.FileInput('docker-compose.yml', inplace=True) as file:
-            for line in file:
-                print(line.replace('1000:1000',user),end='')
-        
-        subprocess.run(['chown','-R',user,'.']) #chown 1000:1000
-    
     #Merging all sql migrations
     os.chdir("src/core/sql/migrations")         #cd /src/core/sql/migrations
     subprocess.run(["chmod","+x","merge.sh"])   #chmod +x merge.sh
