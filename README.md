@@ -2,7 +2,7 @@
 
 [![vmangos-docker CI build](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml/badge.svg)](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml)
 
-## Release: 0.5.0
+## Release: 0.5.1
 
 This is a project that is based on the VMaNGOS core running on Docker. 
 
@@ -119,6 +119,7 @@ options:
   --ccache    Clean CCache(exclusive)
   --docker    Docker Clean(exclusive)
   -v          Increase output verbosity
+```
 
 Example command config
 
