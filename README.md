@@ -2,14 +2,14 @@
 
 [![vmangos-docker CI build](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml/badge.svg)](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml)
 
-## Release: 0.5.1
+## Release: 0.5.2
 
 This is a project that is based on the VMaNGOS core running on Docker. 
 
 Source code from https://github.com/vmangos/core.
 
-The configuration should be configured to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server information.
-Changing the exposed port for mysql should also be considered if not removing it all together. Website functionality will be configured with a separate function within setup.sh.
+The configuration should be set to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server IP.
+Changing the exposed port for mysql in the Docker Compose file should also be considered if not removing it all together.
 
 ### Arm Notice:
 
@@ -24,7 +24,6 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 * [Docker Compose 1.22.0+](https://docs.docker.com/compose/install/)
 
 * [Operating System is 64 bit](https://en.wikipedia.org/wiki/64-bit_computing)
-    ([Currently Raspbian is only 64bit beta](https://www.raspberrypi.org/blog/latest-raspberry-pi-os-update-may-2020/))
 
 * [Python 3.5+](https://www.python.org/downloads/)
 
@@ -42,11 +41,11 @@ Make sure operating system is 64bit and that thread count should be 2 for <= 4GB
 
 #### b.) Configuration Files:
 
-* Server config: 	/config
-* Database config: 	/env/db.env
-* VMaNGOS: 		/vmangos
+* Server config:	/config
+* Database config:	/env/db.env
+* VMaNGOS: 			/vmangos
 * Database volume: 	/var/lib/docker/volumes/vmangos_database
-* CCache:		/src/ccache
+* CCache:			/src/ccache
 
 ### Step 2:
 #### a). Run setup.py for creating containers and for managing this project. Default flags are already applied and a help menu can be shown.
