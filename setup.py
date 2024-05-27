@@ -34,7 +34,7 @@ if (platform.architecture()[0] != '64bit'):
 
 #Check if Git version is 1.8.3+
 git_version = subprocess.run(["git","version"],encoding="utf-8",stdout=subprocess.PIPE,universal_newlines=True).stdout
-git_parse = re.findall('\d+',git_version)
+git_parse = re.findall(r'\d+',git_version)
 if (git_parse[0] < '1' and git_parse[1] < '8' and git_parse[2] < '3'):
     print ("Git version is not 1.8.3+",git_version)
     quit()
@@ -46,7 +46,7 @@ if (sys.version_info.major < 3 and sys.version_info.minor < 5):
 
 #Check for docker version 18.06.0+
 docker_version = subprocess.run(["docker","version","--format","'{{.Server.Version}}'"],encoding="utf-8",stdout=subprocess.PIPE,universal_newlines=True).stdout
-docker_parse = re.findall('\d+',docker_version)
+docker_parse = re.findall(r'\d+',docker_version)
 if (docker_parse[0] < '18' and docker_parse[1] < '06' and docker_parse[2] < '00'):
 	print("Docker engine is older than 18.06.00",docker_version)
 
