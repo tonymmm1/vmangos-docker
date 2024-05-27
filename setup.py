@@ -78,7 +78,7 @@ parser.add_argument("-c", default = "5875",
        "\t5464 = 1.11.2\n"
        "\t5875 = 1.12.1(default)\n"
         ,type=int)
-parser.add_argument("-a", help="Enable anticheat\n\t0 = Disable Anticheat(default)\n\t1 = Enable Anticheat", default="1", type=int)
+parser.add_argument("-a", help="Enable anticheat\n\t0 = Disable Anticheat\n\t1 = Enable Anticheat(default)", default="1", type=int)
 parser.add_argument("--ccache", help="Clean CCache(exclusive)", action="store_true")
 parser.add_argument("--docker", help="Docker Clean(exclusive)", action="store_true")
 parser.add_argument("-v", help="Increase output verbosity", action="store_true")

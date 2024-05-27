@@ -2,7 +2,7 @@
 
 [![vmangos-docker CI build](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml/badge.svg)](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml)
 
-## Release: 0.5.2
+## Release: 0.5.3
 
 This is a project that is based on the VMaNGOS core running on Docker. 
 
@@ -112,8 +112,8 @@ options:
               	5464 = 1.11.2
               	5875 = 1.12.1(default)
   -a A        Enable anticheat
-              	0 = Disable Anticheat(default)
-              	1 = Enable Anticheat
+              	0 = Disable Anticheat
+              	1 = Enable Anticheat(default)
   --ccache    Clean CCache(exclusive)
   --docker    Docker Clean(exclusive)
   -v          Increase output verbosity
@@ -122,21 +122,21 @@ options:
 Example command config
 
 ```
-./setup.py -m0 -t2 -c5875 -a0
+./setup.py -m0 -t2 -c5875 -a1
 ```
 
 ### List of Commands:
-#### General commands(All docker-compose commands must be run from within the project directory)
+#### General commands(All docker compose commands must be run from within the project directory)
 
 ```
-docker-compose up (Creates and runs containers with console output)
-docker-compose up -d (Creates and detaches from running containers)
-docker-compose ps (Lists all running containers)
-docker-compose stop (Stops containers without destroying)
-docker-compose restart (Restart containers)
-docker-compose down (Destroys containers)
-docker-compose down -v (Destroys containers and volumes)
-docker-compose exec vmangos_(container) bash (Executes bash inside container of choice)
+docker compose up (Creates and runs containers with console output)
+docker compose up -d (Creates and detaches from running containers)
+docker compose ps (Lists all running containers)
+docker compose stop (Stops containers without destroying)
+docker compose restart (Restart containers)
+docker compose down (Destroys containers)
+docker compose down -v (Destroys containers and volumes)
+docker compose exec vmangos_(container) bash (Executes bash inside container of choice)
 docker ps (Lists all running docker processes)
 #using tmux/screen is recommended to not kill
 docker attach (applies to the vmangos_mangos/realmd/database) session

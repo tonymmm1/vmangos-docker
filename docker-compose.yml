@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   vmangos_database:
     container_name: vmangos_database
