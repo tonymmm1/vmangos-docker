@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:noble-20260810
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG VMANGOS_REVISION=unknown
@@ -25,6 +25,7 @@ RUN apt-get update \
         libmysqlclient-dev \
         libssl-dev \
         make \
+        patchelf \
         p7zip-full \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*

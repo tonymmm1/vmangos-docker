@@ -40,7 +40,10 @@ cmake --build "$VMANGOS_SRC/build" --parallel "$THREADS"
 cmake --install "$VMANGOS_SRC/build"
 
 install -d /vmangos "$VMANGOS_BIN/data" "$VMANGOS_BIN/logs"
-cp -a "$VMANGOS_BIN/." /vmangos/
+cd "$VMANGOS_SRC"
+./.github/scripts/package-linux-release.sh "$VMANGOS_BIN" vmangos-runtime.tar.gz
+find /vmangos -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+cp -a "$VMANGOS_SRC/bin/linux-release/vmangos-linux-amd64/." /vmangos/
 
 archive="/database/$WORLD_DB.7z"
 [ -f "$archive" ] || die "world database archive not found: $archive"

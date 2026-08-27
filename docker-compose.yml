@@ -1,6 +1,5 @@
 services:
   vmangos_database:
-    container_name: vmangos_database
     build:
       context: .
       dockerfile: docker/database/Dockerfile
@@ -8,8 +7,8 @@ services:
       - vmangos_database:/var/lib/mysql
       - ./src/core/sql:/opt/vmangos/sql:ro
       - ./src/database:/opt/vmangos/sql/database:ro
-      - /etc/localtime:/etc/localtime:ro
     environment:
+      TZ: ${TZ}
       MARIADB_ROOT_PASSWORD_FILE: /run/secrets/mariadb_root_password
       VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
       VMANGOS_DB_USER: ${VMANGOS_DB_USER}
@@ -29,10 +28,15 @@ services:
       - vmangos_db_password
     networks:
       - backend
-    restart: always
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+    restart: unless-stopped
 
   vmangos_realmd:
-    container_name: vmangos_realmd
     build:
       context: .
       dockerfile: docker/realmd/Dockerfile
@@ -40,9 +44,9 @@ services:
       - "${VMANGOS_PUBLIC_BIND_ADDRESS}:${VMANGOS_REALMD_PORT}:3724"
     volumes:
       - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf.template:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - vmangos_logs:/var/log/vmangos
     environment:
+      TZ: ${TZ}
       VMANGOS_CONFIG_TEMPLATE: /opt/vmangos/etc/realmd.conf.template
       VMANGOS_CONFIG_PATH: /run/vmangos/realmd.conf
       VMANGOS_DB_HOST: ${VMANGOS_DB_HOST}
@@ -52,16 +56,27 @@ services:
     secrets:
       - vmangos_db_password
     tmpfs:
-      - /run/vmangos:mode=0700
+      - /run/vmangos:uid=10001,gid=10001,mode=0700
     depends_on:
-      - vmangos_database
+      vmangos_database:
+        condition: service_healthy
     networks:
       - frontend
       - backend
-    restart: always
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "grep -Eq '^[^:]+: [[:xdigit:]]{8}:0E8C .* 0A ' /proc/net/tcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    stop_grace_period: 1m
 
   vmangos_mangos:
-    container_name: vmangos_mangos
     tty: true
     stdin_open: true
     ports:
@@ -69,16 +84,15 @@ services:
     build:
       context: .
       dockerfile: docker/mangos/Dockerfile
-    image: vmangos_mangos:latest
     volumes:
       - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf.template:ro
       - ./src/data/${VMANGOS_CLIENT_BUILD}:/opt/vmangos/bin/${VMANGOS_CLIENT_BUILD}:ro
       - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro
       - ./src/data/maps:/opt/vmangos/bin/maps:ro
       - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - vmangos_logs:/var/log/vmangos
     environment:
+      TZ: ${TZ}
       VMANGOS_CONFIG_TEMPLATE: /opt/vmangos/etc/mangosd.conf.template
       VMANGOS_CONFIG_PATH: /run/vmangos/mangosd.conf
       VMANGOS_DB_HOST: ${VMANGOS_DB_HOST}
@@ -91,16 +105,29 @@ services:
     secrets:
       - vmangos_db_password
     tmpfs:
-      - /run/vmangos:mode=0700
+      - /run/vmangos:uid=10001,gid=10001,mode=0700
     depends_on:
-      - vmangos_database
+      vmangos_database:
+        condition: service_healthy
     networks:
       - frontend
       - backend
-    restart: always
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "grep -Eq '^[^:]+: [[:xdigit:]]{8}:1F95 .* 0A ' /proc/net/tcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 1m
+    restart: unless-stopped
+    stop_grace_period: 2m
 
 volumes:
   vmangos_database:
+  vmangos_logs:
 
 secrets:
   mariadb_root_password:

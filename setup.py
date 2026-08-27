@@ -32,6 +32,7 @@ CLIENT_PATCHES = {
 }
 
 REQUIRED_ENV = (
+    "TZ",
     "VMANGOS_PUBLIC_BIND_ADDRESS",
     "VMANGOS_REALMD_PORT",
     "VMANGOS_REALM_ADDRESS",
@@ -251,6 +252,13 @@ def prepare_local_config(args):
         ENV_FILE.chmod(0o600)
         print("Created .env from .env.example")
 
+    defaults = load_env(ENV_TEMPLATE)
+    existing = load_env(ENV_FILE)
+    new_defaults = {name: value for name, value in defaults.items() if name not in existing}
+    if new_defaults:
+        update_env(ENV_FILE, new_defaults)
+        print(f"Added {len(new_defaults)} new default value(s) to .env")
+
     updates = {}
     if args.client is not None:
         updates["VMANGOS_CLIENT_BUILD"] = args.client
@@ -397,6 +405,14 @@ def clean_ccache():
 
 def clean_docker(verbose=False):
     compose(("down", "--remove-orphans", "--rmi", "local"), verbose=verbose)
+    result = run(
+        ("docker", "image", "rm", "vmangos_build"),
+        verbose=verbose,
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0 and "No such image" not in result.stderr:
+        raise SetupError(f"could not remove vmangos_build: {result.stderr.strip()}")
 
 
 def setup_stack(values, args):

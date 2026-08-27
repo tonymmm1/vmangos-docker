@@ -1,16 +1,30 @@
-FROM ubuntu:24.04
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -y && \
-	apt-get install -y \
-		libace-dev \
-		libmysql++-dev \
-		libreadline-dev \
-		libssl-dev \
-		libtbb-dev \
-		php-soap 
-COPY ./vmangos/bin/mangosd /opt/vmangos/bin/mangosd
-COPY ./docker/server-entrypoint.sh /usr/local/bin/vmangos-entrypoint
+FROM ubuntu:noble-20260810
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates tzdata \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 vmangos \
+    && useradd \
+        --uid 10001 \
+        --gid 10001 \
+        --home-dir /opt/vmangos \
+        --no-create-home \
+        --shell /usr/sbin/nologin \
+        vmangos \
+    && install -d -o vmangos -g vmangos /opt/vmangos/bin /var/log/vmangos
+
+COPY --chown=vmangos:vmangos vmangos/ /opt/vmangos/
+COPY docker/server-entrypoint.sh /usr/local/bin/vmangos-entrypoint
+
+RUN chmod 0755 /usr/local/bin/vmangos-entrypoint \
+    && test -x /opt/vmangos/bin/mangosd
+
 WORKDIR /opt/vmangos/bin
-RUN chmod +x /opt/vmangos/bin/mangosd /usr/local/bin/vmangos-entrypoint
+USER 10001:10001
+
+EXPOSE 8085
+
 ENTRYPOINT ["/usr/local/bin/vmangos-entrypoint"]
 CMD ["./mangosd", "-c", "/run/vmangos/mangosd.conf"]
