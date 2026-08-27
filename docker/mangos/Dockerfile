@@ -9,6 +9,8 @@ RUN apt-get update -y && \
 		libtbb-dev \
 		php-soap 
 COPY ./vmangos/bin/mangosd /opt/vmangos/bin/mangosd
+COPY ./docker/server-entrypoint.sh /usr/local/bin/vmangos-entrypoint
 WORKDIR /opt/vmangos/bin
-RUN chmod +x /opt/vmangos/bin
-CMD ./mangosd -c ../etc/mangosd.conf
+RUN chmod +x /opt/vmangos/bin/mangosd /usr/local/bin/vmangos-entrypoint
+ENTRYPOINT ["/usr/local/bin/vmangos-entrypoint"]
+CMD ["./mangosd", "-c", "/run/vmangos/mangosd.conf"]

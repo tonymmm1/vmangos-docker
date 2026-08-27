@@ -3,3 +3,5 @@ src/data
 development
 src/ccache
 *.bak
+.env
+secrets/

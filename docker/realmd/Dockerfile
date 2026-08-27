@@ -10,6 +10,8 @@ RUN apt-get update -y && \
 		libtbb-dev \
 		php-soap
 COPY ./vmangos/bin/realmd /opt/vmangos/bin/realmd
+COPY ./docker/server-entrypoint.sh /usr/local/bin/vmangos-entrypoint
 WORKDIR /opt/vmangos/bin
-RUN chmod +x realmd
-CMD ./realmd -c ../etc/realmd.conf
+RUN chmod +x realmd /usr/local/bin/vmangos-entrypoint
+ENTRYPOINT ["/usr/local/bin/vmangos-entrypoint"]
+CMD ["./realmd", "-c", "/run/vmangos/realmd.conf"]

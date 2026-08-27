@@ -4,57 +4,108 @@ services:
     build:
       context: .
       dockerfile: docker/database/Dockerfile
-    ports:
-      - 3306:3306
     volumes:
-      - vmangos_database:/var/lib/mysql           #vmangos_database volume
-      - ./src/core/sql:/opt/vmangos/sql           #vmangos src
-      - ./src/database:/opt/vmangos/sql/database  #vmangos src
-      - /etc/localtime:/etc/localtime:ro          #host time
-    env_file: 
-      - ./env/db.env
-      - ./env/mangos.env
+      - vmangos_database:/var/lib/mysql
+      - ./src/core/sql:/opt/vmangos/sql:ro
+      - ./src/database:/opt/vmangos/sql/database:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/mariadb_root_password
+      VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+      VMANGOS_DB_USER: ${VMANGOS_DB_USER}
+      VMANGOS_REALM_ID: ${VMANGOS_REALM_ID}
+      VMANGOS_REALM_NAME: ${VMANGOS_REALM_NAME}
+      VMANGOS_REALM_ADDRESS: ${VMANGOS_REALM_ADDRESS}
+      VMANGOS_REALM_PORT: ${VMANGOS_REALM_PORT}
+      VMANGOS_REALM_ICON: ${VMANGOS_REALM_ICON}
+      VMANGOS_REALM_FLAGS: ${VMANGOS_REALM_FLAGS}
+      VMANGOS_REALM_TIMEZONE: ${VMANGOS_REALM_TIMEZONE}
+      VMANGOS_REALM_SECURITY_LEVEL: ${VMANGOS_REALM_SECURITY_LEVEL}
+      VMANGOS_REALM_POPULATION: ${VMANGOS_REALM_POPULATION}
+      VMANGOS_CLIENT_BUILD: ${VMANGOS_CLIENT_BUILD}
+      VMANGOS_REALM_FLAG: ${VMANGOS_REALM_FLAG}
+    secrets:
+      - mariadb_root_password
+      - vmangos_db_password
+    networks:
+      - backend
     restart: always
 
   vmangos_realmd:
     container_name: vmangos_realmd
-    build: 
+    build:
       context: .
       dockerfile: docker/realmd/Dockerfile
-    ports: 
-      - 3724:3724
+    ports:
+      - "${VMANGOS_PUBLIC_BIND_ADDRESS}:${VMANGOS_REALMD_PORT}:3724"
     volumes:
-      - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro  #realmd conf
-      - /etc/localtime:/etc/localtime:ro                      #host time
-      - /etc/timezone:/etc/timezone:ro                        #host timezone
+      - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf.template:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      VMANGOS_CONFIG_TEMPLATE: /opt/vmangos/etc/realmd.conf.template
+      VMANGOS_CONFIG_PATH: /run/vmangos/realmd.conf
+      VMANGOS_DB_HOST: ${VMANGOS_DB_HOST}
+      VMANGOS_DB_PORT: ${VMANGOS_DB_PORT}
+      VMANGOS_DB_USER: ${VMANGOS_DB_USER}
+      VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+    secrets:
+      - vmangos_db_password
+    tmpfs:
+      - /run/vmangos:mode=0700
     depends_on:
       - vmangos_database
+    networks:
+      - frontend
+      - backend
     restart: always
 
   vmangos_mangos:
     container_name: vmangos_mangos
-    tty: true         #enable terminal with docker attach
-    stdin_open: true  #enable terminal with docker attach
-    ports: 
-      - 8085:8085
+    tty: true
+    stdin_open: true
+    ports:
+      - "${VMANGOS_PUBLIC_BIND_ADDRESS}:${VMANGOS_REALM_PORT}:8085"
     build:
       context: .
       dockerfile: docker/mangos/Dockerfile
     image: vmangos_mangos:latest
     volumes:
-      - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro  #mangosd conf
-      - ./src/data/5875:/opt/vmangos/bin/5875:ro                #dbc
-      - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro              #vmaps
-      - ./src/data/maps:/opt/vmangos/bin/maps:ro                #maps
-      - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro              #mmaps
-      - /etc/localtime:/etc/localtime:ro                        #host time
-      - /etc/timezone:/etc/timezone:ro                          #host timezone
+      - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf.template:ro
+      - ./src/data/${VMANGOS_CLIENT_BUILD}:/opt/vmangos/bin/${VMANGOS_CLIENT_BUILD}:ro
+      - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./src/data/maps:/opt/vmangos/bin/maps:ro
+      - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      VMANGOS_CONFIG_TEMPLATE: /opt/vmangos/etc/mangosd.conf.template
+      VMANGOS_CONFIG_PATH: /run/vmangos/mangosd.conf
+      VMANGOS_DB_HOST: ${VMANGOS_DB_HOST}
+      VMANGOS_DB_PORT: ${VMANGOS_DB_PORT}
+      VMANGOS_DB_USER: ${VMANGOS_DB_USER}
+      VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+    secrets:
+      - vmangos_db_password
+    tmpfs:
+      - /run/vmangos:mode=0700
     depends_on:
       - vmangos_database
-    env_file:
-      - ./env/mangos.env
+    networks:
+      - frontend
+      - backend
     restart: always
 
-#Docker-compose volumes
 volumes:
   vmangos_database:
+
+secrets:
+  mariadb_root_password:
+    file: ${VMANGOS_SECRETS_DIR}/mariadb_root_password
+  vmangos_db_password:
+    file: ${VMANGOS_SECRETS_DIR}/vmangos_db_password
+
+networks:
+  frontend:
+  backend:
+    internal: true

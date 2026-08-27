@@ -1,0 +1,4 @@
+services:
+  vmangos_database:
+    ports:
+      - "${VMANGOS_DB_BIND_ADDRESS}:${VMANGOS_DB_PUBLISHED_PORT}:3306"
