@@ -1,60 +1,37 @@
 FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV ACE_ROOT=/usr/include/ace
-ENV TBB_ROOT_DIR=/usr/include/tbb
-ENV VMANGOS_SRC=/opt/core
-ENV VMANGOS_BIN=/opt/vmangos
-ENV WORLD_DB=world_full_14_june_2021
+ARG DEBIAN_FRONTEND=noninteractive
+ARG VMANGOS_REVISION=unknown
+ARG VMANGOS_REVISION_DATE="1970-01-01 00:00:00 +0000"
 
-# Compile Variables
-ENV THREADS=2
-ENV MALLOC=0
-ENV CLIENT=5875
-ENV EXTRACTORS=1
-ENV ANTICHEAT=1
-ENV SCRIPTS=1
-ENV LIBCURL=1
+ENV VMANGOS_SRC=/opt/core \
+    VMANGOS_BIN=/opt/vmangos \
+    WORLD_DB=world_full_14_june_2021 \
+    THREADS=2 \
+    CLIENT=5875 \
+    EXTRACTORS=1 \
+    SCRIPTS=1 \
+    MAILSENDER=1 \
+    VMANGOS_REVISION=${VMANGOS_REVISION} \
+    VMANGOS_REVISION_DATE=${VMANGOS_REVISION_DATE}
 
-RUN apt-get update -y && \
-	apt-get install -y \
-		build-essential \
-		ccache \
-		cmake \
-		git \
-		libace-dev \
-		libcurl4-openssl-dev \
-		libmysql++-dev \
-		libreadline-dev \
-		libssl-dev \
-		libtbb-dev \
-		make \
-		openssl \
-		p7zip-full
-		
-RUN ln -s /usr/bin/ccache /usr/local/bin/gcc \ 
-	&& ln -s /usr/bin/ccache /usr/local/bin/g++ \
-	&& ln -s /usr/bin/ccache /usr/local/bin/cc \
-	&& ln -s /usr/bin/ccache /usr/local/bin/c++
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ccache \
+        cmake \
+        git \
+        libcurl4-openssl-dev \
+        libmysqlclient-dev \
+        libssl-dev \
+        make \
+        p7zip-full \
+        zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN export ACE_ROOT=/usr/include/ace && export TBB_ROOT_DIR=/usr/include/tbb
+COPY src/core/ /opt/core/
+COPY docker/build/build.sh /usr/local/bin/vmangos-build
 
-COPY /src/core/ /opt/core
+RUN chmod 0755 /usr/local/bin/vmangos-build
 
-CMD mkdir $VMANGOS_SRC/build && cd $VMANGOS_SRC/build && \
-	cmake \
-	-DUSE_STD_MALLOC=$MALLOC \
-	-DSUPPORTED_CLIENT_BUILD=$CLIENT \
-	-DUSE_EXTRACTORS=$EXTRACTORS \
-	-DUSE_ANTICHEAT=$ANTICHEAT \
-	-DSCRIPTS=$SCRIPTS \
-	-DUSE_LIBCURL=$LIBCURL \
-	-DCMAKE_INSTALL_PREFIX=$VMANGOS ../ && \
-	make -j $THREADS && \
-	make install && \
-	mkdir $VMANGOS/data && \
-	mkdir $VMANGOS/logs && \
-	cp $VMANGOS/etc/mangosd.conf.dist $VMANGOS/etc/mangosd.conf && \
-	cp $VMANGOS/etc/realmd.conf.dist $VMANGOS/etc/realmd.conf && \
-	cp -r /opt/vmangos/* /vmangos && \
-	cd /database && 7z e $WORLD_DB.7z
+ENTRYPOINT ["/usr/local/bin/vmangos-build"]

@@ -34,6 +34,7 @@ db_user=${VMANGOS_DB_USER:-mangos}
 db_password=$(read_secret "${VMANGOS_DB_PASSWORD_FILE:-/run/secrets/vmangos_db_password}")
 realm_id=${VMANGOS_REALM_ID:-1}
 client_build=${VMANGOS_CLIENT_BUILD:-5875}
+anticheat=${VMANGOS_ANTICHEAT:-1}
 
 case $client_build in
     4222) wow_patch=0 ;;
@@ -56,6 +57,8 @@ validate_connection_value "$db_user" VMANGOS_DB_USER
 validate_connection_value "$db_password" VMANGOS_DB_PASSWORD
 printf '%s' "$realm_id" | grep -Eq '^[0-9]+$' || \
     die "VMANGOS_REALM_ID must be a non-negative integer"
+printf '%s' "$anticheat" | grep -Eq '^[01]$' || \
+    die "VMANGOS_ANTICHEAT must be 0 or 1"
 
 db_host=$(escape_replacement "$db_host")
 db_port=$(escape_replacement "$db_port")
@@ -72,6 +75,7 @@ sed \
     -e "s|__VMANGOS_DB_PASSWORD__|$db_password|g" \
     -e "s|__VMANGOS_REALM_ID__|$realm_id|g" \
     -e "s|__VMANGOS_WOW_PATCH__|$wow_patch|g" \
+    -e "s|__VMANGOS_ANTICHEAT__|$anticheat|g" \
     "$template" > "$config"
 
 exec "$@"

@@ -45,6 +45,7 @@ REQUIRED_ENV = (
     "VMANGOS_REALM_POPULATION",
     "VMANGOS_CLIENT_BUILD",
     "VMANGOS_REALM_FLAG",
+    "VMANGOS_ANTICHEAT",
     "VMANGOS_DB_HOST",
     "VMANGOS_DB_PORT",
     "VMANGOS_DB_USER",
@@ -92,8 +93,7 @@ def build_parser():
         "--anticheat",
         type=int,
         choices=(0, 1),
-        default=1,
-        help="Compile anticheat support: 0=disabled, 1=enabled (default: 1)",
+        help="Enable movement anticheat: 0=disabled, 1=enabled (default comes from .env)",
     )
     parser.add_argument(
         "--realm-address",
@@ -241,6 +241,8 @@ def validate_env(values):
         raise SetupError("VMANGOS_REALM_NAME contains unsupported characters")
     if not re.fullmatch(r"[A-Za-z0-9.:-]+", values["VMANGOS_REALM_ADDRESS"]):
         raise SetupError("VMANGOS_REALM_ADDRESS must be an IP address or DNS name")
+    if values["VMANGOS_ANTICHEAT"] not in ("0", "1"):
+        raise SetupError("VMANGOS_ANTICHEAT must be 0 or 1")
 
 
 def prepare_local_config(args):
@@ -254,6 +256,8 @@ def prepare_local_config(args):
         updates["VMANGOS_CLIENT_BUILD"] = args.client
     if args.realm_address is not None:
         updates["VMANGOS_REALM_ADDRESS"] = args.realm_address
+    if args.anticheat is not None:
+        updates["VMANGOS_ANTICHEAT"] = args.anticheat
     if updates:
         update_env(ENV_FILE, updates)
 
@@ -282,8 +286,30 @@ def build_server(values, args):
     for directory in (PROJECT_ROOT / "vmangos", PROJECT_ROOT / "src/ccache"):
         directory.mkdir(parents=True, exist_ok=True)
 
+    revision = run(
+        ("git", "-C", "src/core", "rev-parse", "HEAD"),
+        verbose=args.verbose,
+        capture_output=True,
+    ).stdout.strip()
+    revision_date = run(
+        ("git", "-C", "src/core", "show", "-s", "--format=%ci", "HEAD"),
+        verbose=args.verbose,
+        capture_output=True,
+    ).stdout.strip()
     run(
-        ("docker", "build", "--tag", "vmangos_build", "--file", "docker/build/Dockerfile", "."),
+        (
+            "docker",
+            "build",
+            "--tag",
+            "vmangos_build",
+            "--file",
+            "docker/build/Dockerfile",
+            "--build-arg",
+            f"VMANGOS_REVISION={revision}",
+            "--build-arg",
+            f"VMANGOS_REVISION_DATE={revision_date}",
+            ".",
+        ),
         verbose=args.verbose,
     )
     run(
@@ -303,8 +329,6 @@ def build_server(values, args):
             f"THREADS={args.threads}",
             "--env",
             f"CLIENT={values['VMANGOS_CLIENT_BUILD']}",
-            "--env",
-            f"ANTICHEAT={args.anticheat}",
             "vmangos_build",
         ),
         verbose=args.verbose,
