@@ -3,5 +3,8 @@
 *.md
 src/data
 src/database
+__pycache__
+*.py[cod]
 .env
+.env.tmp
 secrets

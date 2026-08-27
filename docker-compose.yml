@@ -85,6 +85,8 @@ services:
       VMANGOS_DB_PORT: ${VMANGOS_DB_PORT}
       VMANGOS_DB_USER: ${VMANGOS_DB_USER}
       VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+      VMANGOS_REALM_ID: ${VMANGOS_REALM_ID}
+      VMANGOS_CLIENT_BUILD: ${VMANGOS_CLIENT_BUILD}
     secrets:
       - vmangos_db_password
     tmpfs:
