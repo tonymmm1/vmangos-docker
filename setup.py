@@ -81,6 +81,11 @@ def build_parser():
         action="store_true",
         help="Rebuild the current checkout and apply database migrations",
     )
+    parser.add_argument(
+        "--build-only",
+        action="store_true",
+        help="Build the server and service images without starting containers",
+    )
     parser.add_argument("-t", "--threads", type=positive_integer, default=2, help="Compiler jobs (default: 2)")
     parser.add_argument(
         "-c",
@@ -415,27 +420,29 @@ def clean_docker(verbose=False):
         raise SetupError(f"could not remove vmangos_build: {result.stderr.strip()}")
 
 
-def setup_stack(values, args):
+def build_images(values, args):
     compose(("config", "--quiet"), verbose=args.verbose)
     update_submodules(args.threads, args.verbose)
     build_server(values, args)
     merge_migrations(args.verbose)
-    compose(("up", "--detach", "--build"), verbose=args.verbose)
+    compose(("build",), verbose=args.verbose)
+
+
+def setup_stack(values, args):
+    build_images(values, args)
+    compose(("up", "--detach"), verbose=args.verbose)
     compose(("ps",), verbose=args.verbose)
     print("Setup complete")
 
 
 def update_stack(values, args):
     print("Updating the VMaNGOS stack")
-    compose(("config", "--quiet"), verbose=args.verbose)
-    update_submodules(args.threads, args.verbose)
-    build_server(values, args)
-    merge_migrations(args.verbose)
+    build_images(values, args)
     compose(("down", "--remove-orphans"), verbose=args.verbose)
-    compose(("up", "--detach", "--build", "vmangos_database"), verbose=args.verbose)
+    compose(("up", "--detach", "vmangos_database"), verbose=args.verbose)
     wait_for_database(args.verbose)
     apply_migrations(args.verbose)
-    compose(("up", "--detach", "--build"), verbose=args.verbose)
+    compose(("up", "--detach"), verbose=args.verbose)
     compose(("ps",), verbose=args.verbose)
     print("Update complete")
 
@@ -443,14 +450,18 @@ def update_stack(values, args):
 def resolve_action(args, parser):
     if args.mode not in (0, 4, 5):
         parser.error("--mode accepts 0 (setup), 4 (clean ccache), or 5 (clean project containers)")
-    if args.update and (args.mode != 0 or args.ccache or args.docker):
-        parser.error("--update cannot be combined with a cleanup action")
+    if args.update and (args.build_only or args.mode != 0 or args.ccache or args.docker):
+        parser.error("--update cannot be combined with --build-only or a cleanup action")
+    if args.build_only and (args.mode != 0 or args.ccache or args.docker):
+        parser.error("--build-only cannot be combined with a cleanup action")
     if args.ccache or args.mode == 4:
         return "ccache"
     if args.docker or args.mode == 5:
         return "docker"
     if args.update:
         return "update"
+    if args.build_only:
+        return "build"
     return "setup"
 
 
@@ -472,7 +483,10 @@ def main(argv=None):
             return 0
 
         generate_secrets(values, args.verbose)
-        if action == "update":
+        if action == "build":
+            build_images(values, args)
+            print("Build complete")
+        elif action == "update":
             update_stack(values, args)
         else:
             setup_stack(values, args)
