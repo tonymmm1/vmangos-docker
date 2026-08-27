@@ -1,143 +1,241 @@
 # vmangos-docker
 
-[![vmangos-docker CI build](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml/badge.svg)](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml)
+[![CI](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml/badge.svg)](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml)
 
 ## Release: 0.5.3
 
-This is a project that is based on the VMaNGOS core running on Docker. 
+Build and run the [VMaNGOS](https://github.com/vmangos/core) login, world, and
+MariaDB services with Docker Compose. The default configuration supports local
+play, a public IP address, or a DNS name without editing Compose or the database
+by hand.
 
-Source code from https://github.com/vmangos/core.
+The base stack publishes only the game ports. MariaDB stays on an internal
+Docker network, configuration is read from an ignored `.env` file, and database
+passwords are generated into ignored secret files.
 
-The configuration should be set to work with localhost games and can be edited by changing the realmd.realmd table and adding the correct server IP.
-Changing the exposed port for mysql in the Docker Compose file should also be considered if not removing it all together.
+## Requirements
 
-### Arm Notice:
+- A 64-bit x86 Linux host (the current upstream runtime package is amd64)
+- Git
+- Docker Engine with the Docker Compose v2 plugin (`docker compose`)
+- Python 3
+- Enough memory for compilation; use `--threads 2` on a host with 4 GB or less
+- Client-derived DBC, map, vmap, and mmap data for the client build you select
 
-Make sure operating system is 64bit and that thread count should be 2 for <= 4GB ram.
+## Quick start
 
-### Requirements:
+Clone the repository and its pinned submodules:
 
-* [Git 1.8.3+](https://git-scm.com/)
-
-* [Docker-CE 18.06.00+](https://docs.docker.com/get-docker/)
-
-* [Docker Compose 1.22.0+](https://docs.docker.com/compose/install/)
-
-* [Operating System is 64 bit](https://en.wikipedia.org/wiki/64-bit_computing)
-
-* [Python 3.5+](https://www.python.org/downloads/)
-
-* [Tmux(recommended for docker attach)](https://github.com/tmux/tmux/wiki/Getting-Started)
-
-### Step 1:
-#### a.) Place dependencies as listed below:
-
-* /src/data 
-* /src/data/maps
-* /src/data/mmaps
-* /src/data/vmaps
-* /src/data/5875(adjust according to patch release)
-* /src/data/5875/dbc
-
-#### b.) Configuration Files:
-
-* Server config:	/config
-* Database config:	/env/db.env
-* VMaNGOS: 			/vmangos
-* Database volume: 	/var/lib/docker/volumes/vmangos_database
-* CCache:			/src/ccache
-
-### Step 2:
-#### a). Run setup.py for creating containers and for managing this project. Default flags are already applied and a help menu can be shown.
-  
-```
-chmod +x 
-./setup.py 
+```sh
+git clone --recurse-submodules https://github.com/tonymmm1/vmangos-docker.git
+cd vmangos-docker
 ```
 
-Help menu:
+Create your local settings file:
 
-```
-./setup.py -h
-```
-
-#### b). Configure realm ip address
-Use mysql-workbench or from the vmangos_database container edit the ip address column in realmd.realmlist to set the ip that will be exposed for connections(public ip required for internet). Using the account and password for the mangos user or the root user as can be configured in db.env. 
-
-### Step 3: Maintenence
-#### a). Updating all repos
-
-```
-./setup.py -m 0 --update
+```sh
+cp .env.example .env
+chmod 600 .env
 ```
 
-#### b). Cleaning CCache
+Edit `.env`. For a server reached through `play.example.com`, the important
+setting is:
 
+```dotenv
+VMANGOS_REALM_ADDRESS=play.example.com
 ```
+
+`VMANGOS_REALM_ADDRESS` is the IP address or DNS name advertised to game
+clients. `VMANGOS_PUBLIC_BIND_ADDRESS=0.0.0.0` makes the game ports listen on all
+host interfaces; use a specific host address if that is more appropriate.
+
+Place the extracted client data in these directories, replacing `5875` when a
+different `VMANGOS_CLIENT_BUILD` is selected:
+
+```text
+src/data/
+├── 5875/
+│   └── dbc/
+├── maps/
+├── mmaps/
+└── vmaps/
+```
+
+Build and start the stack:
+
+```sh
+./setup.py --threads 2
+```
+
+The setup command creates `.env` from `.env.example` when needed, generates the
+password files, builds the pinned VMaNGOS revision, initializes MariaDB, and
+starts the services. Use `./setup.py --help` to see every option.
+
+## Internet and LAN servers
+
+No Compose edits are needed for a non-local server:
+
+1. Set `VMANGOS_REALM_ADDRESS` to the address clients can reach.
+2. Keep `VMANGOS_PUBLIC_BIND_ADDRESS=0.0.0.0`, or set it to the host's intended
+   LAN/public interface address.
+3. Allow TCP ports `3724` and `8085` through the host firewall.
+4. When the host is behind a router or NAT gateway, forward those two TCP ports
+   to the Docker host.
+
+The externally published ports can be changed with `VMANGOS_REALMD_PORT` and
+`VMANGOS_REALM_PORT`. The realm advertises `VMANGOS_REALM_PORT`, so any NAT rule
+must preserve that externally visible port.
+
+## Configuration and credentials
+
+`.env` is for ordinary deployment settings such as addresses, ports, realm
+metadata, timezone, client build, and the database username. It is intentionally
+ignored by Git. `.env.example` is the safe, tracked template.
+
+Database passwords do not belong in `.env` or `docker-compose.yml`. On the first
+setup, `scripts/generate-secrets.sh` creates these files with private
+permissions:
+
+```text
+secrets/
+├── mariadb_root_password
+└── vmangos_db_password
+```
+
+The files are mounted into the containers as Docker file secrets. Keep them with
+the database backup and never commit them. Do not delete or regenerate the
+secret files while reusing an existing database volume: MariaDB retains the
+credentials stored in that volume.
+
+Command-line settings update `.env`, so this is also valid:
+
+```sh
+./setup.py --realm-address play.example.com --client 5875 --anticheat 1
+```
+
+## Database administration
+
+MariaDB has no host port in the base stack. For local administration, add the
+optional overlay:
+
+```sh
+docker compose \
+  --file docker-compose.yml \
+  --file docker-compose.admin.yml \
+  up --detach vmangos_database
+```
+
+The default `VMANGOS_DB_BIND_ADDRESS=127.0.0.1` makes this port available only
+on the Docker host. An SSH tunnel is preferable for remote administration. If
+you deliberately publish MariaDB on another interface, also restrict it with a
+firewall and use an encrypted connection.
+
+## Operations
+
+Show service state and logs:
+
+```sh
+docker compose ps
+docker compose logs --follow vmangos_database
+docker compose logs --follow vmangos_realmd vmangos_mangos
+```
+
+Attach to the world-server console (detach with `Ctrl-p`, `Ctrl-q`):
+
+```sh
+docker compose attach vmangos_mangos
+```
+
+Stop and start the stack without deleting data:
+
+```sh
+docker compose down
+docker compose up --detach
+```
+
+Rebuild the current checkout and apply database migrations:
+
+```sh
+git pull --ff-only
+./setup.py --update
+```
+
+Build without starting containers, clean the compiler cache, or remove this
+project's containers and locally built images:
+
+```sh
+./setup.py --build-only
 ./setup.py --ccache
-```
-
-#### c). Cleaning unused Docker Containers
-
-```
 ./setup.py --docker
 ```
 
-### Command line options:
+`--docker` preserves the named database and log volumes. In contrast,
+`docker compose down --volumes` deletes persistent database data; use it only
+after making and verifying a backup.
 
-```
-usage: setup.py [-h] [-m M] [--update] [-t T] [-u U] [-c C] [-a A] [--ccache] [--docker] [-v]
+## Backup and restore
 
-Vmangos-Docker cli
+Create a logical backup of the four game databases:
 
-options:
-  -h, --help  show this help message and exit
-  -m M        Select mode
-              	0 = default(default)
-              	3 = reset all files
-              	4 = ccache clean
-              	5 = Docker clean
-  --update    Use update mode
-  -t T        Input number of threads to use for compiling, values 1-2(2 default) for <4GB ram
-  -c C        Input Client version to compile
-              	4222 = 1.2.4
-              	4297 = 1.3.1
-              	4375 = 1.4.2
-              	4449 = 1.5.1
-              	4544 = 1.6.1
-              	4695 = 1.7.1
-              	4878 = 1.8.4
-              	5086 = 1.9.4
-              	5302 = 1.10.2
-              	5464 = 1.11.2
-              	5875 = 1.12.1(default)
-  -a A        Enable anticheat
-              	0 = Disable Anticheat
-              	1 = Enable Anticheat(default)
-  --ccache    Clean CCache(exclusive)
-  --docker    Docker Clean(exclusive)
-  -v          Increase output verbosity
+```sh
+docker compose exec -T vmangos_database sh -ec \
+  'export MYSQL_PWD="$(cat "$VMANGOS_DB_PASSWORD_FILE")"; \
+   exec mariadb-dump --protocol=tcp --host=127.0.0.1 \
+   --user="$VMANGOS_DB_USER" --single-transaction \
+   --databases realmd characters mangos logs' > vmangos-backup.sql
 ```
 
-Example command config
+The backup contains account data and should be protected. To restore it, stop
+the game services, import the file, and start them again:
 
-```
-./setup.py -m0 -t2 -c5875 -a1
+```sh
+docker compose stop vmangos_realmd vmangos_mangos
+docker compose exec -T vmangos_database sh -ec \
+  'export MYSQL_PWD="$(cat "$VMANGOS_DB_PASSWORD_FILE")"; \
+   exec mariadb --protocol=tcp --host=127.0.0.1 \
+   --user="$VMANGOS_DB_USER"' < vmangos-backup.sql
+docker compose start vmangos_realmd vmangos_mangos
 ```
 
-### List of Commands:
-#### General commands(All docker compose commands must be run from within the project directory)
+The named `vmangos_database` and `vmangos_logs` volumes persist independently
+of the containers.
 
+## Upgrading an existing 0.5.x installation
+
+The credential model changes after 0.5.x, so an old MariaDB volume still knows
+the old credentials while the new stack generates new ones. Migrate with a
+logical backup rather than deleting the old volume first.
+
+While the old stack is still running, create a backup with its existing root
+credential:
+
+```sh
+docker exec vmangos_database sh -ec \
+  'exec mariadb-dump --user=root --password="$MYSQL_ROOT_PASSWORD" \
+   --single-transaction --databases realmd characters mangos logs' \
+  > vmangos-0.5-backup.sql
 ```
-docker compose up (Creates and runs containers with console output)
-docker compose up -d (Creates and detaches from running containers)
-docker compose ps (Lists all running containers)
-docker compose stop (Stops containers without destroying)
-docker compose restart (Restart containers)
-docker compose down (Destroys containers)
-docker compose down -v (Destroys containers and volumes)
-docker compose exec vmangos_(container) bash (Executes bash inside container of choice)
-docker ps (Lists all running docker processes)
-#using tmux/screen is recommended to not kill
-docker attach (applies to the vmangos_mangos/realmd/database) session
-```
+
+Verify that the backup is non-empty and store a second copy. Then switch to the
+new release, intentionally remove the old project volume, run `./setup.py`, and
+restore the backup using the restore procedure above. Never run
+`docker compose down --volumes` until the backup has been verified.
+
+## Supported clients
+
+| Client build | Game version | `WowPatch` |
+| ---: | ---: | ---: |
+| 4222 | 1.2.4 | 0 |
+| 4297 | 1.3.1 | 1 |
+| 4375 | 1.4.2 | 2 |
+| 4449 | 1.5.1 | 3 |
+| 4544 | 1.6.1 | 4 |
+| 4695 | 1.7.1 | 5 |
+| 4878 | 1.8.4 | 6 |
+| 5086 | 1.9.4 | 7 |
+| 5302 | 1.10.2 | 8 |
+| 5464 | 1.11.2 | 9 |
+| 5875 | 1.12.1 | 10 |
+
+Select one in `.env` with `VMANGOS_CLIENT_BUILD`, or pass `--client` to
+`setup.py`.
