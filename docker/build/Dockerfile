@@ -18,6 +18,7 @@ ENV VMANGOS_SRC=/opt/core \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
+        ca-certificates \
         ccache \
         cmake \
         git \
