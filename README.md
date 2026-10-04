@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml/badge.svg)](https://github.com/tonymmm1/vmangos-docker/actions/workflows/vmangos-docker.yml)
 
-**Release:** 0.5.3
+**Release:** 0.6.0
 
 A reproducible Docker Compose deployment for the
 [VMaNGOS](https://github.com/vmangos/core) login server, world server, and
