@@ -6,7 +6,7 @@ services:
     volumes:
       - vmangos_database:/var/lib/mysql
       - ./src/core/sql:/opt/vmangos/sql:ro
-      - ./src/database:/opt/vmangos/sql/database:ro
+      - ./src/database:/opt/vmangos/world-database:ro
     environment:
       TZ: ${TZ}
       MARIADB_ROOT_PASSWORD_FILE: /run/secrets/mariadb_root_password

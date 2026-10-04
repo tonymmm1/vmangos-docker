@@ -74,7 +74,7 @@ printf 'Importing databases\n'
 mariadb_root realmd < /opt/vmangos/sql/logon.sql
 mariadb_root logs < /opt/vmangos/sql/logs.sql
 mariadb_root characters < /opt/vmangos/sql/characters.sql
-mariadb_root mangos < "/opt/vmangos/sql/database/$WORLD.sql"
+mariadb_root mangos < "/opt/vmangos/world-database/$WORLD.sql"
 
 printf 'Importing migrations\n'
 mariadb_root mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
