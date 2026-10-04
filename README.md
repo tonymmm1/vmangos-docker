@@ -255,9 +255,12 @@ secrets/
 └── vmangos_db_password
 ```
 
-The directory and files are private, ignored by Git, and mounted into containers
-as Compose file secrets. They are host files, not an encrypted secret vault, so
-protect them and include a secure copy with your database backups.
+The directory is private (`0700`) and ignored by Git. The files inside it are
+mounted into containers as Compose file secrets; Compose keeps their host
+ownership and mode, so they are readable (`0644`) for the non-root container
+users, and the private directory is what restricts access on the host. They
+are host files, not an encrypted secret vault, so protect them and include a
+secure copy with your database backups.
 
 Do not delete or regenerate these files while reusing an existing database
 volume. MariaDB retains the passwords stored in that volume, and newly generated
