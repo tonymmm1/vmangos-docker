@@ -288,9 +288,32 @@ class SecretGenerationTests(unittest.TestCase):
             self.assertEqual(before, after)
             self.assertEqual(set(before), {"mariadb_root_password", "vmangos_db_password"})
             self.assertNotEqual(before["mariadb_root_password"], before["vmangos_db_password"])
+            self.assertEqual(stat.S_IMODE(secret_directory.stat().st_mode), 0o700)
             for path in secret_directory.iterdir():
                 self.assertRegex(path.read_text(encoding="utf-8").strip(), r"^[0-9a-f]{64}$")
-                self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+                self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o644)
+
+    def test_existing_private_secrets_become_container_readable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            secret_directory = Path(directory) / "secrets"
+            secret_directory.mkdir()
+            existing = secret_directory / "vmangos_db_password"
+            existing.write_text("0123456789abcdef" * 4 + "\n", encoding="utf-8")
+            existing.chmod(0o600)
+            environment = os.environ.copy()
+            environment["VMANGOS_SECRETS_DIR"] = str(secret_directory)
+
+            subprocess.run(
+                (str(PROJECT_ROOT / "scripts/generate-secrets.sh"),),
+                check=True,
+                cwd=PROJECT_ROOT,
+                env=environment,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(existing.read_text(encoding="utf-8"), "0123456789abcdef" * 4 + "\n")
+            self.assertEqual(stat.S_IMODE(existing.stat().st_mode), 0o644)
 
 
 if __name__ == "__main__":
