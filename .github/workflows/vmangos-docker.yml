@@ -61,6 +61,8 @@ jobs:
 
       - name: Verify runtime images
         run: |
+          # compose images only reports services that have containers.
+          docker compose create --no-build vmangos_mangos vmangos_realmd
           mangos_image=$(docker compose images --quiet vmangos_mangos)
           realmd_image=$(docker compose images --quiet vmangos_realmd)
           test -n "$mangos_image"
@@ -82,9 +84,12 @@ jobs:
              --execute="SELECT COUNT(*) FROM realmd.realmlist"')
           test "$result" = "1"
 
-      - name: Show database logs after a failure
+      - name: Start login server
+        run: docker compose up --detach --wait --wait-timeout 300 vmangos_realmd
+
+      - name: Show service logs after a failure
         if: failure()
-        run: docker compose logs vmangos_database
+        run: docker compose logs vmangos_database vmangos_realmd
 
       - name: Remove test containers and volumes
         if: always()
