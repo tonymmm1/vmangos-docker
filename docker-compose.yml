@@ -1,60 +1,141 @@
 services:
   vmangos_database:
-    container_name: vmangos_database
     build:
       context: .
       dockerfile: docker/database/Dockerfile
-    ports:
-      - 3306:3306
     volumes:
-      - vmangos_database:/var/lib/mysql           #vmangos_database volume
-      - ./src/core/sql:/opt/vmangos/sql           #vmangos src
-      - ./src/database:/opt/vmangos/sql/database  #vmangos src
-      - /etc/localtime:/etc/localtime:ro          #host time
-    env_file: 
-      - ./env/db.env
-      - ./env/mangos.env
-    restart: always
+      - vmangos_database:/var/lib/mysql
+      - ./src/core/sql:/opt/vmangos/sql:ro
+      - ./src/database:/opt/vmangos/world-database:ro
+    environment:
+      TZ: ${TZ}
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/mariadb_root_password
+      VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+      VMANGOS_DB_USER: ${VMANGOS_DB_USER}
+      VMANGOS_REALM_ID: ${VMANGOS_REALM_ID}
+      VMANGOS_REALM_NAME: ${VMANGOS_REALM_NAME}
+      VMANGOS_REALM_ADDRESS: ${VMANGOS_REALM_ADDRESS}
+      VMANGOS_REALM_PORT: ${VMANGOS_REALM_PORT}
+      VMANGOS_REALM_ICON: ${VMANGOS_REALM_ICON}
+      VMANGOS_REALM_FLAGS: ${VMANGOS_REALM_FLAGS}
+      VMANGOS_REALM_TIMEZONE: ${VMANGOS_REALM_TIMEZONE}
+      VMANGOS_REALM_SECURITY_LEVEL: ${VMANGOS_REALM_SECURITY_LEVEL}
+      VMANGOS_REALM_POPULATION: ${VMANGOS_REALM_POPULATION}
+      VMANGOS_CLIENT_BUILD: ${VMANGOS_CLIENT_BUILD}
+      VMANGOS_REALM_FLAG: ${VMANGOS_REALM_FLAG}
+    secrets:
+      - mariadb_root_password
+      - vmangos_db_password
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+    restart: unless-stopped
 
   vmangos_realmd:
-    container_name: vmangos_realmd
-    build: 
+    build:
       context: .
       dockerfile: docker/realmd/Dockerfile
-    ports: 
-      - 3724:3724
+    ports:
+      - "${VMANGOS_PUBLIC_BIND_ADDRESS}:${VMANGOS_REALMD_PORT}:3724"
     volumes:
-      - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro  #realmd conf
-      - /etc/localtime:/etc/localtime:ro                      #host time
-      - /etc/timezone:/etc/timezone:ro                        #host timezone
+      - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf.template:ro
+      - vmangos_logs:/var/log/vmangos
+    environment:
+      TZ: ${TZ}
+      VMANGOS_CONFIG_TEMPLATE: /opt/vmangos/etc/realmd.conf.template
+      VMANGOS_CONFIG_PATH: /run/vmangos/realmd.conf
+      VMANGOS_DB_HOST: ${VMANGOS_DB_HOST}
+      VMANGOS_DB_PORT: ${VMANGOS_DB_PORT}
+      VMANGOS_DB_USER: ${VMANGOS_DB_USER}
+      VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+    secrets:
+      - vmangos_db_password
+    tmpfs:
+      - /run/vmangos:uid=10001,gid=10001,mode=0700
     depends_on:
-      - vmangos_database
-    restart: always
+      vmangos_database:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "grep -Eq '^[^:]+: [[:xdigit:]]{8}:0E8C .* 0A ' /proc/net/tcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    stop_grace_period: 1m
 
   vmangos_mangos:
-    container_name: vmangos_mangos
-    tty: true         #enable terminal with docker attach
-    stdin_open: true  #enable terminal with docker attach
-    ports: 
-      - 8085:8085
+    tty: true
+    stdin_open: true
+    ports:
+      - "${VMANGOS_PUBLIC_BIND_ADDRESS}:${VMANGOS_REALM_PORT}:8085"
     build:
       context: .
       dockerfile: docker/mangos/Dockerfile
-    image: vmangos_mangos:latest
     volumes:
-      - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro  #mangosd conf
-      - ./src/data/5875:/opt/vmangos/bin/5875:ro                #dbc
-      - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro              #vmaps
-      - ./src/data/maps:/opt/vmangos/bin/maps:ro                #maps
-      - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro              #mmaps
-      - /etc/localtime:/etc/localtime:ro                        #host time
-      - /etc/timezone:/etc/timezone:ro                          #host timezone
+      - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf.template:ro
+      - ./src/data/${VMANGOS_CLIENT_BUILD}:/opt/vmangos/bin/${VMANGOS_CLIENT_BUILD}:ro
+      - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./src/data/maps:/opt/vmangos/bin/maps:ro
+      - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro
+      - vmangos_logs:/var/log/vmangos
+    environment:
+      TZ: ${TZ}
+      VMANGOS_CONFIG_TEMPLATE: /opt/vmangos/etc/mangosd.conf.template
+      VMANGOS_CONFIG_PATH: /run/vmangos/mangosd.conf
+      VMANGOS_DB_HOST: ${VMANGOS_DB_HOST}
+      VMANGOS_DB_PORT: ${VMANGOS_DB_PORT}
+      VMANGOS_DB_USER: ${VMANGOS_DB_USER}
+      VMANGOS_DB_PASSWORD_FILE: /run/secrets/vmangos_db_password
+      VMANGOS_REALM_ID: ${VMANGOS_REALM_ID}
+      VMANGOS_CLIENT_BUILD: ${VMANGOS_CLIENT_BUILD}
+      VMANGOS_ANTICHEAT: ${VMANGOS_ANTICHEAT}
+    secrets:
+      - vmangos_db_password
+    tmpfs:
+      - /run/vmangos:uid=10001,gid=10001,mode=0700
     depends_on:
-      - vmangos_database
-    env_file:
-      - ./env/mangos.env
-    restart: always
+      vmangos_database:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "grep -Eq '^[^:]+: [[:xdigit:]]{8}:1F95 .* 0A ' /proc/net/tcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 1m
+    restart: unless-stopped
+    stop_grace_period: 2m
 
-#Docker-compose volumes
 volumes:
   vmangos_database:
+  vmangos_logs:
+
+secrets:
+  mariadb_root_password:
+    file: ${VMANGOS_SECRETS_DIR}/mariadb_root_password
+  vmangos_db_password:
+    file: ${VMANGOS_SECRETS_DIR}/vmangos_db_password
+
+networks:
+  frontend:
+  backend:
+    internal: true

@@ -1,21 +1,96 @@
-name: vmangos-docker CI build
+name: CI
 
-on: 
+on:
   push:
-    paths-ignore:
-      - '.drone.yml'
-      - 'README.md'
-      - '.gitignore'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  validate:
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - name: build stack
-      run: |
-        ./setup.py -t 2
-        sleep 180
-        docker-compose ps
-        docker-compose logs vmangos_database
-        docker-compose logs vmangos_realmd
-        docker-compose logs vmangos_mangos
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Run unit and integration tests
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Check shell syntax
+        run: |
+          sh -n \
+            basic-setup.sh \
+            docker/build/build.sh \
+            docker/database/generate-db-2.sh \
+            docker/server-entrypoint.sh \
+            scripts/generate-secrets.sh
+
+      - name: Validate Compose models
+        run: |
+          docker compose --env-file .env.example config --quiet
+          docker compose \
+            --env-file .env.example \
+            --file docker-compose.yml \
+            --file docker-compose.admin.yml \
+            config --quiet
+
+      - name: Check patches for whitespace errors
+        run: git diff --check
+
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Build server and service images
+        run: ./setup.py --build-only --threads 2
+
+      - name: Verify runtime images
+        run: |
+          # compose images only reports services that have containers.
+          docker compose create --no-build vmangos_mangos vmangos_realmd
+          mangos_image=$(docker compose images --quiet vmangos_mangos)
+          realmd_image=$(docker compose images --quiet vmangos_realmd)
+          test -n "$mangos_image"
+          test -n "$realmd_image"
+          test "$(docker image inspect --format '{{.Config.User}}' "$mangos_image")" = "10001:10001"
+          test "$(docker image inspect --format '{{.Config.User}}' "$realmd_image")" = "10001:10001"
+          docker run --rm --entrypoint /bin/sh "$mangos_image" -ec \
+            '! ldd /opt/vmangos/bin/mangosd | grep -q "not found"'
+          docker run --rm --entrypoint /bin/sh "$realmd_image" -ec \
+            '! ldd /opt/vmangos/bin/realmd | grep -q "not found"'
+
+      - name: Initialize and query MariaDB
+        run: |
+          docker compose up --detach --wait --wait-timeout 600 vmangos_database
+          result=$(docker compose exec -T vmangos_database sh -ec \
+            'export MYSQL_PWD="$(cat "$VMANGOS_DB_PASSWORD_FILE")"; \
+             mariadb --protocol=tcp --host=127.0.0.1 --user="$VMANGOS_DB_USER" \
+             --batch --skip-column-names \
+             --execute="SELECT COUNT(*) FROM realmd.realmlist"')
+          test "$result" = "1"
+
+      - name: Start login server
+        run: docker compose up --detach --wait --wait-timeout 300 vmangos_realmd
+
+      - name: Show service logs after a failure
+        if: failure()
+        run: docker compose logs vmangos_database vmangos_realmd
+
+      - name: Remove test containers and volumes
+        if: always()
+        run: docker compose down --volumes --remove-orphans
